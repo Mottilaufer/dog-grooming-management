@@ -1,0 +1,6 @@
+@DogGroomingAPI_HostAddress = http://localhost:5230
+
+GET {{DogGroomingAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
