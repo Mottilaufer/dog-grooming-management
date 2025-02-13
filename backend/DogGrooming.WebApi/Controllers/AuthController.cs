@@ -18,9 +18,7 @@ namespace DogGrooming.WebApi.Controllers
             _jwtManager = jwtManager;
         }
 
-        /// <summary>
-        /// רישום משתמש חדש
-        /// </summary>
+   
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
