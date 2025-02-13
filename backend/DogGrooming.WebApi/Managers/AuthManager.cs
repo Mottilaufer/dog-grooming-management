@@ -61,7 +61,7 @@ namespace DogGrooming.WebApi.Managers
             {
                 Log.Information($"Attempting to authenticate user: {user.Username}");
 
-                // חיפוש המשתמש בבסיס הנתונים לפי שם המשתמש בלבד
+                
                 var existingUser = await _userRepository.AuthenticateUserAsync(user.Username);
 
                 if (existingUser == null)
@@ -70,7 +70,7 @@ namespace DogGrooming.WebApi.Managers
                     return new UnauthorizedObjectResult("Invalid credentials.");
                 }
 
-                // חישוב ה-Hash מחדש בעזרת הסיסמה הגולמית שהלקוח שלח והסוללה שנמצאת ב-DB
+                
                 if (!_passwordHasher.VerifyPassword(user.Password, existingUser.PasswordHash, existingUser.PasswordSalt))
                 {
                     Log.Warning($"Invalid password for user: {user.Username}");
