@@ -7,6 +7,7 @@ using DogGrooming.WebApi.Managers;
 using DogGrooming.WebApi.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using DogGrooming.WebApi.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddSingleton<DatabaseContext>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<JwtManager>();
 builder.Services.AddSingleton<AuthManager>();
+builder.Services.AddSingleton<PasswordHasher>();
+
 
 // 🔹 הוספת JWT Authentication
 builder.Services

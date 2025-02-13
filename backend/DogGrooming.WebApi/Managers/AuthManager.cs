@@ -2,6 +2,7 @@
 using DogGrooming.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using DogGrooming.WebApi.Helpers; // הוספת ה-using
 
 namespace DogGrooming.WebApi.Managers
 {
@@ -9,11 +10,13 @@ namespace DogGrooming.WebApi.Managers
     {
         private readonly UserRepository _userRepository;
         private readonly JwtManager _jwtManager;
+        private readonly PasswordHasher _passwordHasher; // הוספנו את ה-PasswordHasher
 
-        public AuthManager(UserRepository userRepository, JwtManager jwtManager)
+        public AuthManager(UserRepository userRepository, JwtManager jwtManager, PasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _jwtManager = jwtManager;
+            _passwordHasher = passwordHasher; // אתחול ה-PasswordHasher
         }
 
         public async Task<UserRegistrationResult> RegisterUserAsync(User user)
@@ -21,6 +24,11 @@ namespace DogGrooming.WebApi.Managers
             try
             {
                 Log.Information($"Attempting to register user: {user.Username}");
+
+                // חשיבת ה-Hash וה-Salt עבור הסיסמה
+                var (passwordHash, passwordSalt) = _passwordHasher.HashPassword(user.Password);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
 
                 // רישום משתמש
                 var result = await _userRepository.RegisterUserAsync(user);
@@ -53,16 +61,25 @@ namespace DogGrooming.WebApi.Managers
             {
                 Log.Information($"Attempting to authenticate user: {user.Username}");
 
-                var existingUser = await _userRepository.AuthenticateUserAsync(user.Username, user.PasswordHash);
+                // חיפוש המשתמש בבסיס הנתונים לפי שם המשתמש בלבד
+                var existingUser = await _userRepository.AuthenticateUserAsync(user.Username);
 
-                if (existingUser == null || existingUser.PasswordHash != user.PasswordHash)
+                if (existingUser == null)
                 {
-                    Log.Warning($"Invalid credentials for user: {user.Username}");
+                    Log.Warning($"User {user.Username} not found.");
+                    return new UnauthorizedObjectResult("Invalid credentials.");
+                }
+
+                // חישוב ה-Hash מחדש בעזרת הסיסמה הגולמית שהלקוח שלח והסוללה שנמצאת ב-DB
+                if (!_passwordHasher.VerifyPassword(user.Password, existingUser.PasswordHash, existingUser.PasswordSalt))
+                {
+                    Log.Warning($"Invalid password for user: {user.Username}");
                     return new UnauthorizedObjectResult("Invalid credentials.");
                 }
 
                 Log.Information($"User {user.Username} authenticated successfully.");
 
+                // יצירת טוקן JWT למשתמש
                 var token = _jwtManager.GenerateJwtToken(existingUser);
                 return new OkObjectResult(new { token });
             }
@@ -72,5 +89,7 @@ namespace DogGrooming.WebApi.Managers
                 return new UnauthorizedObjectResult("Unexpected error occurred.");
             }
         }
+
+
     }
 }

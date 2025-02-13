@@ -16,15 +16,17 @@ namespace DogGrooming.DAL.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<User?> AuthenticateUserAsync(string username, string passwordHash)
+        public async Task<User?> AuthenticateUserAsync(string username)
         {
             using var connection = new SqlConnection(_connectionString);
             try
             {
                 Log.Information("Authenticating user: {Username}", username);
+
+                // חיפוש המשתמש על פי שם המשתמש בלבד
                 var user = await connection.QuerySingleOrDefaultAsync<User>(
                     "AuthenticateUser",
-                    new { Username = username, PasswordHash = passwordHash },
+                    new { Username = username },
                     commandType: CommandType.StoredProcedure);
 
                 if (user == null)
