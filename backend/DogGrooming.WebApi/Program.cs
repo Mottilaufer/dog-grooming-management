@@ -28,6 +28,7 @@ builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"))
 builder.Services.AddSingleton<DatabaseContext>();
 builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<JwtManager>();
+builder.Services.AddSingleton<AuthManager>();
 
 // 🔹 הוספת JWT Authentication
 builder.Services

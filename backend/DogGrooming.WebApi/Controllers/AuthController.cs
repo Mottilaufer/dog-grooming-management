@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
 using DogGrooming.WebApi.Managers;
 
@@ -9,16 +8,13 @@ namespace DogGrooming.WebApi.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
-        private readonly JwtManager _jwtManager;
+        private readonly AuthManager _authManager;
 
-        public AuthController(UserRepository userRepository, JwtManager jwtManager)
+        public AuthController(AuthManager authManager)
         {
-            _userRepository = userRepository;
-            _jwtManager = jwtManager;
+            _authManager = authManager;
         }
 
-   
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] User user)
         {
@@ -27,10 +23,9 @@ namespace DogGrooming.WebApi.Controllers
                 return BadRequest("Username and password are required.");
             }
 
-            var result = await _userRepository.RegisterUserAsync(user);
+            var result = await _authManager.RegisterUserAsync(user);
             return Ok(result);
         }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User user)
@@ -40,13 +35,8 @@ namespace DogGrooming.WebApi.Controllers
                 return BadRequest("Username and password are required.");
             }
 
-            var existingUser = await _userRepository.AuthenticateUserAsync(user.Username, user.PasswordHash);
-
-            if (existingUser == null || existingUser.PasswordHash != user.PasswordHash)
-                return Unauthorized("Invalid credentials.");
-
-            var token = _jwtManager.GenerateJwtToken(existingUser);
-            return Ok(new { token });
+            var result = await _authManager.LoginAsync(user);
+            return result;
         }
     }
 }
