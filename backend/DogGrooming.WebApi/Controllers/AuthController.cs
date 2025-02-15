@@ -30,13 +30,8 @@ namespace DogGrooming.WebApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Password))
-            {
-                return BadRequest("Username and password are required.");
-            }
-
             var result = await _authManager.LoginAsync(user);
-            return result;
+            return Ok(result);
         }
     }
 }

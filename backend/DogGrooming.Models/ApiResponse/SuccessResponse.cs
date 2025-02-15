@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace DogGrooming.Models.ApiResponse
 {
-    public class AppointmentResponse
+    public class SuccessResponse
     {
-        public SuccessResponse successResponse { get; set; }
-        public IEnumerable<Appointment> Data { get; set; }
+        public bool Success { get; set; }
+        public string Message { get; set; }
     }
-}
 
+}
