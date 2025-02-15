@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginUser } from '../redux/actions/userActions';
+import { useNavigate } from 'react-router-dom'; 
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const navigate = useNavigate();  
+  const [credentials, setCredentials] = useState({ username: '', password: ''});
 
   const handleChange = (e) => {
     setCredentials({
@@ -13,9 +15,19 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(loginUser(credentials));
+    try {
+      const response = await dispatch(loginUser(credentials));
+     debugger
+      if (response.success) {
+        navigate('/home');  
+      } else {
+        alert('Login failed');
+      }
+    } catch (error) {
+      console.error("Error during login", error);
+    }
   };
 
   return (
