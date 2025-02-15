@@ -1,5 +1,6 @@
 ﻿using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
+using DogGrooming.Models.ApiResponse;
 using Serilog;
 
 namespace DogGrooming.WebApi.Managers
@@ -17,101 +18,156 @@ namespace DogGrooming.WebApi.Managers
 
 
 
-        public async Task<AppointmentResult> UpdateAppointmentAsync(int userId, DateTime appointmentTime, byte[] rowVersion)
+        public async Task<AppointmentResponse> UpdateAppointmentAsync(int userId, DateTime appointmentTime, string rowVer, DateTime updateAppointmentTime)
         {
+            AppointmentResponse appointmentResponse = new();
+
             try
             {
-                Log.Information($"Updating appointment for user {userId} at {appointmentTime}");
-
-              
-                var existingAppointments = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
-                if (!existingAppointments.Any(a => a.AppointmentTime == appointmentTime))
-                {
-                    Log.Warning($"User {userId} tried to update an appointment that doesn't exist.");
-                    return new AppointmentResult { Status = -1, Message = "Appointment not found." };
-                }
-
-                return await _appointmentRepository.UpdateAppointmentAsync(userId, appointmentTime, rowVersion);
+                Log.Information($"Attempting to update appointment for user {userId} at {appointmentTime}");
+                var result = await _appointmentRepository.UpdateAppointmentAsync(userId, appointmentTime, rowVer, updateAppointmentTime);
+                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                appointmentResponse.Data = new List<Appointment>();  
             }
             catch (Exception ex)
             {
-                Log.Error($"Error updating appointment: {ex.Message}");
-                return new AppointmentResult { Status = -1, Message = "Failed to update appointment." };
+                Log.Error($"Error updating appointment for user {userId} at {appointmentTime}: {ex.Message}");
+                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error updating appointment." };
+                appointmentResponse.Data = new List<Appointment>();
             }
+
+            return appointmentResponse;
         }
 
-        public async Task<AppointmentResult> DeleteAppointmentAsync(int userId, DateTime appointmentTime, byte[] rowVersion)
+
+        public async Task<AppointmentResponse> DeleteAppointmentAsync(int userId, DateTime appointmentTime, string rowVer)
         {
+            AppointmentResponse appointmentResponse = new();
+
             try
             {
-                Log.Information($"Deleting appointment for user {userId} at {appointmentTime}");
-
-                var existingAppointments = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
-                if (!existingAppointments.Any(a => a.AppointmentTime == appointmentTime))
-                {
-                    Log.Warning($"User {userId} tried to delete an appointment that doesn't exist.");
-                    return new AppointmentResult { Status = -1, Message = "Appointment not found." };
-                }
-
-                return await _appointmentRepository.DeleteAppointmentAsync(userId, appointmentTime, rowVersion);
+                Log.Information($"Attempting to delete appointment for user {userId} at {appointmentTime}");
+                var result = await _appointmentRepository.DeleteAppointmentAsync(userId, appointmentTime, rowVer);
+                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                appointmentResponse.Data = new List<Appointment>(); 
             }
             catch (Exception ex)
             {
-                Log.Error($"Error deleting appointment: {ex.Message}");
-                return new AppointmentResult { Status = -1, Message = "Failed to delete appointment." };
+                Log.Error($"Error deleting appointment for user {userId} at {appointmentTime}: {ex.Message}");
+                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error deleting appointment." };
+                appointmentResponse.Data = new List<Appointment>();
             }
+
+            return appointmentResponse;
         }
 
-        public async Task<IEnumerable<Appointment>> GetAppointmentsByUserAsync(int userId)
+        public async Task<AppointmentResponse> GetAppointmentsByUserAsync(int userId)
         {
+            AppointmentResponse appointmentResponse = new();
+            appointmentResponse.Data = new List<Appointment>();
+
             try
             {
                 Log.Information($"Fetching appointments for user {userId}");
-                return await _appointmentRepository.GetAppointmentsByUserAsync(userId);
+
+                var appointments = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
+
+                if (appointments == null || !appointments.Any())
+                {
+                    Log.Warning($"No appointments found for user {userId}");
+
+                    appointmentResponse.Status = new IsSuccess { Success = true, Message = "No appointments found for this user." };
+                    return appointmentResponse; 
+                }
+
+                appointmentResponse.Status = new IsSuccess { Success = true, Message = "Appointments retrieved successfully." };
+                appointmentResponse.Data = appointments; 
             }
             catch (Exception ex)
             {
                 Log.Error($"Error fetching appointments for user {userId}: {ex.Message}");
-                return new List<Appointment>();
+                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error fetching appointments." };
             }
+
+            return appointmentResponse; 
         }
 
-        public async Task<IEnumerable<Appointment>> GetAppointmentsByDateAsync(DateTime date)
+
+        public async Task<AppointmentResponse> GetAppointmentsByDateAsync(DateTime date)
         {
+            AppointmentResponse appointmentResponse = new();
+            appointmentResponse.Data = new List<Appointment>(); 
             try
             {
                 Log.Information($"Fetching appointments for date {date}");
-                return await _appointmentRepository.GetAppointmentsByDateAsync(date);
+
+
+                var appointments = await _appointmentRepository.GetAppointmentsByDateAsync(date);
+
+     
+                if (appointments == null || !appointments.Any())
+                {
+                    Log.Warning($"No appointments found for date {date}");
+
+                    appointmentResponse.Status = new IsSuccess { Success = true, Message = "No appointments found for the specified date." };
+                    return appointmentResponse;
+
+                }
+
+
+                appointmentResponse.Status = new IsSuccess { Success = true, Message = "Appointments retrieved successfully." };
+                appointmentResponse.Data = appointments;
+               
             }
             catch (Exception ex)
             {
+                // טיפול בשגיאה
                 Log.Error($"Error fetching appointments for date {date}: {ex.Message}");
-                return new List<Appointment>();
+                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error fetching appointments." };
             }
+
+            return appointmentResponse;
         }
 
-        public async Task<AppointmentResult> AddAppointmentAsync(int userId, DateTime appointmentTime)
+        public async Task<AppointmentResponse> AddAppointmentAsync(int userId, DateTime appointmentTime)
         {
+            AppointmentResponse appointmentResponse = new();
+
             try
             {
-                Log.Information($"Adding appointment for user {userId} at {appointmentTime}");
+                Log.Information($"Attempting to add appointment for user {userId} at {appointmentTime}");
 
-                // ווידוא שהתור לא מתנגש
+      
                 var existingAppointment = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
                 if (existingAppointment.Any(a => a.AppointmentTime == appointmentTime))
                 {
                     Log.Warning($"User {userId} tried to add a conflicting appointment at {appointmentTime}");
-                    return new AppointmentResult { Status = -1, Message = "Appointment already exists at this time." };
+
+                    appointmentResponse.Status = new IsSuccess { Success = false, Message = "Appointment already exists at this time." };
+                    appointmentResponse.Data = new List<Appointment>();  
+                    return appointmentResponse;
                 }
 
-                return await _appointmentRepository.AddAppointmentAsync(userId, appointmentTime);
+        
+                var result = await _appointmentRepository.AddAppointmentAsync(userId, appointmentTime);
+                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                appointmentResponse.Data = new List<Appointment>();
             }
             catch (Exception ex)
             {
-                Log.Error($"Error adding appointment: {ex.Message}");
-                return new AppointmentResult { Status = -1, Message = "Failed to add appointment." };
+                Log.Error($"Error adding appointment for user {userId} at {appointmentTime}: {ex.Message}");
+                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error adding appointment." };
+                appointmentResponse.Data = new List<Appointment>();
             }
+
+            return appointmentResponse;
         }
 
+        public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
+        {
+            // קריאה לפונקציה ב-DAL
+            var availableAppointments = await _appointmentRepository.GetOccupiedAppointmentsAsync();
+            return availableAppointments;
+        }
     }
 }

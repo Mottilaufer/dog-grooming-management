@@ -10,7 +10,8 @@ namespace DogGrooming.Models
     {
         public int UserId { get; set; }
         public DateTime AppointmentTime { get; set; }
-        public byte[] RowVer { get; set; }
+        public DateTime UpdateAppointmentTime { get; set; }
+        public string RowVer { get; set; }
     }
 }
 

@@ -31,6 +31,11 @@ builder.Services.AddSingleton<UserRepository>();
 builder.Services.AddSingleton<JwtManager>();
 builder.Services.AddSingleton<AuthManager>();
 builder.Services.AddSingleton<PasswordHasher>();
+builder.Services.AddScoped<AppointmentManager>();
+builder.Services.AddScoped<AppointmentRepository>();
+
+
+
 
 
 // 🔹 הוספת JWT Authentication
