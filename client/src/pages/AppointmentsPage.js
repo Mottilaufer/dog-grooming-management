@@ -1,22 +1,42 @@
 // src/pages/AppointmentsPage.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAppointments, deleteAppointment } from '../redux/actions/appointmentActions'; // מייבא את פעולות ה-API
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 
 const AppointmentsPage = () => {
-  const [appointments, setAppointments] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  debugger
+  const { user } = useSelector(state => state.user);
+  const { appointments, loading, error } = useSelector(state => state.appointments);
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      const response = await fetch('api/appointments'); // כאן תוכל לשנות את ה-API ששלח את המידע
-      const data = await response.json();
-      setAppointments(data);
-    };
+    if (user) {
+      dispatch(fetchAppointments(user.token)); 
+    } else {
+      navigate('/login'); 
+    }
+  }, [dispatch, user, navigate]);
 
-    fetchAppointments();
-  }, []);
+  const handleDelete = (appointmentId) => {
+    dispatch(deleteAppointment(appointmentId, user.token));
+  };
+
+  const handleEdit = (appointmentId) => {
+    const appointment = appointments.find(a => a.id === appointmentId);
+    alert(`Edit appointment for ${appointment.clientName}`);
+ 
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="appointments-page">
-      <h2>Appointments</h2>
+      <h2>Your Appointments</h2>
       <table>
         <thead>
           <tr>
@@ -31,13 +51,16 @@ const AppointmentsPage = () => {
               <td>{appointment.appointmentTime}</td>
               <td>{appointment.clientName}</td>
               <td>
-                <button>Edit</button>
-                <button>Delete</button>
+                <button onClick={() => handleEdit(appointment.id)}>Edit</button>
+                <button onClick={() => handleDelete(appointment.id)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <Link to="/book-appointment">
+        <button>Book New Appointment</button>
+      </Link>
     </div>
   );
 };

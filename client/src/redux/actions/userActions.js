@@ -1,19 +1,23 @@
-// redux/actions/userActions.js
 import axios from '../../services/axios';
-import { setUser } from '../reducers/userReducer';  // מייבא את האקשן setUser
+import { setUser } from '../reducers/userReducer';  
+import { jwtDecode } from "jwt-decode";
+
+
 
 export const loginUser = (credentials) => async (dispatch) => {
   try {
     const response = await axios.post('/auth/login', credentials);
 
-    if (response.data.successResponse.success) {
-      const token = response.data.token;
-      const user = response.data.user;  // אם יש מידע על המשתמש
+    if (response?.data?.successResponse?.success) {
+      
+      const token = response?.data?.token;
+      const decodedToken = jwtDecode(token);
+      const user = decodedToken?.user;
+      const id = decodedToken?.id;
 
-      // dispatch של setUser עם הטוקן ופרטי המשתמש
-      dispatch(setUser({ token, user }));
 
-      // מחזירים את התוצאה כדי שנוכל להפעיל את ה-redirect ב-LoginPage
+      dispatch(setUser({ token, user , id}));
+
       return {
         success: true,
         message: 'Login succeeded'
@@ -37,5 +41,19 @@ export const loginUser = (credentials) => async (dispatch) => {
       success: false,
       message: 'Error during login'
     };
+  }
+};
+
+export const registerUser = (userData) => async (dispatch) => {
+  try {
+    const response = await axios.post('/auth/register', userData);
+
+    if (response?.data?.successResponse?.success) {
+      return { success: true };
+    } else {
+      return { success: false, message: response.data.message };
+    }
+  } catch (error) {
+    return { success: false, message: error.message };
   }
 };

@@ -29,8 +29,8 @@ namespace DogGrooming.WebApi.Managers
             // הגדרת תביעות (Claims) 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim("user", user.Username),
+                new Claim("id", user.Id.ToString())
             };
 
             // הגדרת מפתחות לחתימה

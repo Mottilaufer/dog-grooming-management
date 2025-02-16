@@ -19,9 +19,8 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const response = await dispatch(loginUser(credentials));
-     debugger
       if (response.success) {
-        navigate('/home');  
+        navigate('/appointments');  
       } else {
         alert('Login failed');
       }

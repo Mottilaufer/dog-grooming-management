@@ -22,6 +22,9 @@ namespace DogGrooming.WebApi.Managers
 
         public async Task<UserRegistrationResult> RegisterUserAsync(User user)
         {
+            UserRegistrationResult userRegistrationResult = new ();
+            userRegistrationResult.successResponse = new();
+            string message = string.Empty;
             try
             {
                 Log.Information($"Attempting to register user: {user.Username}");
@@ -35,25 +38,24 @@ namespace DogGrooming.WebApi.Managers
                 var result = await _userRepository.RegisterUserAsync(user);
                 if (result.Status == 1)
                 {
-                    Log.Information($"User {user.Username} registered successfully.");
+                    message = $"User {user.Username} registered successfully.";
+                    userRegistrationResult.successResponse.Success = true;
                 }
                 else
                 {
-                    Log.Warning($"User {user.Username} registration failed: {result.Message}");
+                    message = $"User {user.Username} registration failed: {result.Message}";
                 }
 
-                return result;
+                Log.Information(message);
+                userRegistrationResult.successResponse.Message = message;
             }
             catch (Exception ex)
             {
                 Log.Error($"Error registering user {user.Username}: {ex.Message}");
-                return new UserRegistrationResult
-                {
-                    Status = -3,
-                    UserId = null,
-                    Message = "Unexpected error occurred."
-                };
+                userRegistrationResult.successResponse.Message = ex.Message;
+                userRegistrationResult.successResponse.Success = false;
             }
+            return userRegistrationResult;
         }
 
         public async Task<LoginResponse> LoginAsync(User user)
