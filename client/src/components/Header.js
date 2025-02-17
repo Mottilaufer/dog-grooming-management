@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/reducers/userReducer';
 import { useNavigate } from 'react-router-dom'; 
-import './HeaderFooter.scss';  // ייבוא קובץ ה- SCSS
+import './HeaderFooter.scss'; 
 
 const Header = () => {
   const dispatch = useDispatch();

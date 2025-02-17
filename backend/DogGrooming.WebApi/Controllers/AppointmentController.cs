@@ -7,6 +7,7 @@ namespace DogGrooming.WebApi.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
+    [Authorize]
     
     public class AppointmentController : ControllerBase
     {
@@ -56,6 +57,12 @@ namespace DogGrooming.WebApi.Controllers
         public async Task<IActionResult> GetOccupiedAppointments()
         {
             var result = await _appointmentManager.GetOccupiedAppointmentsAsync();
+            return Ok(result);
+        }
+        [HttpGet("available-slots")]
+        public async Task<IActionResult> GetAvailableSlots()
+        {
+            var result = await _appointmentManager.GetAvailableSlotsAsync();
             return Ok(result);
         }
 

@@ -1,8 +1,9 @@
-
 import axios from '../../services/axios';
 
-
 export const fetchAppointments = (token) => async (dispatch) => {
+
+  dispatch({ type: 'FETCH_APPOINTMENTS_REQUEST' });
+
   try {
     const response = await axios.get('/appointments/occupied-appointments', {
       headers: { Authorization: `Bearer ${token}` }
@@ -20,6 +21,27 @@ export const fetchAppointments = (token) => async (dispatch) => {
   }
 };
 
+export const fetchAvailableslots = (token) => async (dispatch) => {
+  dispatch({ type: 'FETCH_AVAILABLE_SLOTS_REQUEST' });
+  try {
+    const response = await axios.get('/appointments/available-slots', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    dispatch({
+      type: 'FETCH_AVAILABLE_SLOTS_SUCCESS', 
+      payload: response.data
+    });
+
+    return response.data; 
+  } catch (error) {
+    dispatch({
+      type: 'FETCH_AVAILABLE_SLOTS_FAILURE',
+      payload: error.message
+    });
+  }
+};
+
 export const deleteAppointment = (appointmentData, token) => async (dispatch) => {
   try {
     const response = await axios.delete('/appointments/delete-appointment', {
@@ -29,7 +51,7 @@ export const deleteAppointment = (appointmentData, token) => async (dispatch) =>
 
     dispatch({
       type: 'DELETE_APPOINTMENT_SUCCESS',
-      payload: response.data,
+      payload: { id: appointmentData.id }, 
     });
 
     return response.data; 
@@ -42,9 +64,6 @@ export const deleteAppointment = (appointmentData, token) => async (dispatch) =>
     throw error;
   }
 };
-
-
-
 
 export const bookAppointment = (appointmentData, token) => async (dispatch) => {
   try {
@@ -68,7 +87,6 @@ export const bookAppointment = (appointmentData, token) => async (dispatch) => {
   }
 };
 
-
 export const updateAppointment = (updatedData, token) => async (dispatch) => {
   try {
     const response = await axios.put('/appointments/update-appointment', updatedData, {
@@ -90,4 +108,3 @@ export const updateAppointment = (updatedData, token) => async (dispatch) => {
     throw error; 
   }
 };
-

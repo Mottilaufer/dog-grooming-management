@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || null,  // אם אין מידע, נשתמש בערך ברירת מחדל
-  isAuthenticated: !!localStorage.getItem('authToken'),  // נשאר true אם יש טוקן
+  user: JSON.parse(localStorage.getItem('user')) || null,  
+  isAuthenticated: !!localStorage.getItem('authToken'), 
   id: localStorage.getItem('userId') || null,
   token: localStorage.getItem('authToken') || null,
 };

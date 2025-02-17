@@ -1,6 +1,7 @@
 ﻿using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
 using DogGrooming.Models.ApiResponse;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 namespace DogGrooming.WebApi.Managers
@@ -165,8 +166,14 @@ namespace DogGrooming.WebApi.Managers
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
-            var availableAppointments = await _appointmentRepository.GetOccupiedAppointmentsAsync();
-            return availableAppointments;
+            var occupiedAppointmentResponse = await _appointmentRepository.GetOccupiedAppointmentsAsync();
+            return occupiedAppointmentResponse;
+        }
+
+        public async Task<List<AvailableDay>> GetAvailableSlotsAsync()
+        {
+            var availableSlotsResponse = await _appointmentRepository.GetAvailableAppointmentSlots();
+            return availableSlotsResponse;
         }
     }
 }

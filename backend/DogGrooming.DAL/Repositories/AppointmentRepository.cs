@@ -122,10 +122,52 @@ namespace DogGrooming.DAL.Repositories
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
- 
+            try
+            {
                 using var connection = new SqlConnection(_connectionString);
                 var query = "EXEC GetOccupiedAppointments";
                 return (await connection.QueryAsync<OccupiedAppointmentResponse>(query)).AsList();
+
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error fetching appointments : {ex.Message}");
+                throw;
+            }
+ 
         }
+
+        public async Task<List<AvailableDay>> GetAvailableAppointmentSlots()
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = "EXEC GetAvailableAppointmentSlots";
+
+                var flatData = await connection.QueryAsync<(string AppointmentDate, string AppointmentTime, bool IsBooked)>(query);
+
+                var groupedData = flatData
+                    .GroupBy(d => d.AppointmentDate) 
+                    .Select(g => new AvailableDay
+                    {
+                        Date = g.Key,
+                        Slots = g.Select(s => new TimeSlot
+                        {
+                            Time = s.AppointmentTime,
+                            IsBooked = s.IsBooked
+                        }).ToList()
+                    })
+                    .ToList();
+
+                return groupedData;
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error fetching שvailable appointments : {ex.Message}");
+                throw;
+            }
+           
+        }
+
     }
 }
