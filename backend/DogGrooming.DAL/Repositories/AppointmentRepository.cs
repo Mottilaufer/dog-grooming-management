@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DogGrooming.DAL.Interfaces;
 using DogGrooming.Models;
 using DogGrooming.Models.ApiResponse;
 using Microsoft.AspNetCore.Components.Routing;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DogGrooming.DAL.Repositories
 {
-    public class AppointmentRepository
+    public class AppointmentRepository : IAppointmentRepository
     {
         private readonly string _connectionString;
 

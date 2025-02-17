@@ -5,10 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using DogGrooming.Models;
 using Serilog;
+using DogGrooming.WebApi.Interfaces;
 
 namespace DogGrooming.WebApi.Managers
 {
-    public class JwtManager
+    public class JwtManager : IJwtManager
     {
         private readonly IConfiguration _configuration;
 

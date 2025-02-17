@@ -12,6 +12,7 @@ const TimeSlotSelector = ({ onSelect }) => {
   const { availableSlots } = useSelector((state) => state.appointments);
 
   useEffect(() => {
+    if (token) {
     const fetchAvailableSlots = async () => {
       try {
         dispatch(fetchAvailableslots(token))
@@ -20,6 +21,7 @@ const TimeSlotSelector = ({ onSelect }) => {
       }
     };
     fetchAvailableSlots();
+  }
   }, [dispatch, token]);
 
   useEffect(() => {

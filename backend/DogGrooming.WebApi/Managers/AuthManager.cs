@@ -3,17 +3,19 @@ using DogGrooming.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using DogGrooming.WebApi.Helpers;
-using DogGrooming.Models.ApiResponse; 
+using DogGrooming.Models.ApiResponse;
+using DogGrooming.WebApi.Interfaces;
+using DogGrooming.DAL.Interfaces;
 
 namespace DogGrooming.WebApi.Managers
 {
-    public class AuthManager
+    public class AuthManager : IAuthManager
     {
-        private readonly UserRepository _userRepository;
-        private readonly JwtManager _jwtManager;
-        private readonly PasswordHasher _passwordHasher;
+        private readonly IUserRepository _userRepository;
+        private readonly IJwtManager _jwtManager;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public AuthManager(UserRepository userRepository, JwtManager jwtManager, PasswordHasher passwordHasher)
+        public AuthManager(IUserRepository userRepository, IJwtManager jwtManager, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _jwtManager = jwtManager;

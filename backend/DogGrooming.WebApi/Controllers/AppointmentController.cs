@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DogGrooming.WebApi.Managers;
 using DogGrooming.Models;
+using DogGrooming.WebApi.Interfaces;
 
 namespace DogGrooming.WebApi.Controllers
 {
@@ -11,9 +12,9 @@ namespace DogGrooming.WebApi.Controllers
     
     public class AppointmentController : ControllerBase
     {
-        private readonly AppointmentManager _appointmentManager;
+        private readonly IAppointmentManager _appointmentManager;
 
-        public AppointmentController(AppointmentManager appointmentManager)
+        public AppointmentController(IAppointmentManager appointmentManager)
         {
             _appointmentManager = appointmentManager;
         }

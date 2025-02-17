@@ -1,17 +1,19 @@
-﻿using DogGrooming.DAL.Repositories;
+﻿using DogGrooming.DAL.Interfaces;
+using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
 using DogGrooming.Models.ApiResponse;
+using DogGrooming.WebApi.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 namespace DogGrooming.WebApi.Managers
 {
-    public class AppointmentManager
+    public class AppointmentManager : IAppointmentManager
     {
-        private readonly UserRepository _userRepository;
-        private readonly AppointmentRepository _appointmentRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
 
-        public AppointmentManager(UserRepository userRepository, AppointmentRepository appointmentRepository)
+        public AppointmentManager(IUserRepository userRepository, IAppointmentRepository appointmentRepository)
         {
             _userRepository = userRepository;
             _appointmentRepository = appointmentRepository;

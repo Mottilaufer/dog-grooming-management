@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace DogGrooming.DAL.Database
 {
-    public class DatabaseContext
+    public class DatabaseContext 
     {
         private readonly string _connectionString;
 

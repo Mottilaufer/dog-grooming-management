@@ -4,10 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using DogGrooming.Models;
 using Serilog;
+using DogGrooming.DAL.Interfaces;
 
 namespace DogGrooming.DAL.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
 

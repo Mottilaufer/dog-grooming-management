@@ -8,6 +8,8 @@ using DogGrooming.WebApi.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using DogGrooming.WebApi.Helpers;
+using DogGrooming.DAL.Interfaces;
+using DogGrooming.WebApi.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,12 +28,12 @@ var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<DatabaseContext>();
-builder.Services.AddSingleton<UserRepository>();
-builder.Services.AddSingleton<JwtManager>();
-builder.Services.AddSingleton<AuthManager>();
-builder.Services.AddSingleton<PasswordHasher>();
-builder.Services.AddScoped<AppointmentManager>();
-builder.Services.AddScoped<AppointmentRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IJwtManager, JwtManager>();
+builder.Services.AddSingleton<IAuthManager, AuthManager>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IAppointmentManager, AppointmentManager>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 
 builder.Services.AddCors(options =>

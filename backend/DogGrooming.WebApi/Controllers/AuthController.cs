@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DogGrooming.Models;
 using DogGrooming.WebApi.Managers;
+using DogGrooming.WebApi.Interfaces;
 
 namespace DogGrooming.WebApi.Controllers
 {
@@ -8,9 +9,9 @@ namespace DogGrooming.WebApi.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthManager _authManager;
+        private readonly IAuthManager _authManager;
 
-        public AuthController(AuthManager authManager)
+        public AuthController(IAuthManager authManager)
         {
             _authManager = authManager;
         }

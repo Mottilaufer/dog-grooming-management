@@ -1,9 +1,10 @@
-﻿using System.Security.Cryptography;
+﻿using DogGrooming.WebApi.Interfaces;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace DogGrooming.WebApi.Helpers
 {
-    public class PasswordHasher
+    public class PasswordHasher : IPasswordHasher
     {
         private const int SaltSize = 16; 
         private const int Iterations = 10000; 
