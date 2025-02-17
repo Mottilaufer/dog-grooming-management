@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../redux/actions/userActions'; 
 import { useNavigate } from 'react-router-dom'; 
+import './RegisterPage.scss'; 
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();  
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated); // ⬅️ בדיקה אם המשתמש מחובר
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated); 
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +17,7 @@ const RegisterPage = () => {
   // ✅ מניעת גישה לעמוד ההרשמה אם המשתמש כבר מחובר
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/appointments'); // ⬅️ אם מחובר, נשלח אותו לדף הפגישות
+      navigate('/appointments'); 
     }
   }, [isAuthenticated, navigate]);
 
@@ -37,38 +38,37 @@ const RegisterPage = () => {
 
   return (
     <div className="register-page">
-      <h2>Register</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
+      <div className="register-container">
+        <h1>Register</h1>
+        <form onSubmit={handleSubmit}>
           <input
             type="text"
+            name="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
             required
           />
-        </div>
-        <div>
-          <label>Password:</label>
           <input
             type="password"
+            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
             required
           />
-        </div>
-        <div>
-          <label>Full Name:</label>
           <input
             type="text"
+            name="fullName"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
+            placeholder="Full Name"
             required
           />
-        </div>
-        <button type="submit">Register</button>
-      </form>
+          <button type="submit">Register</button>
+        </form>
+        {message && <p className="error-message">{message}</p>}
+      </div>
     </div>
   );
 };
