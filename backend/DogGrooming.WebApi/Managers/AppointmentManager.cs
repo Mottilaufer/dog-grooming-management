@@ -40,20 +40,20 @@ namespace DogGrooming.WebApi.Managers
         }
 
 
-        public async Task<AppointmentResponse> DeleteAppointmentAsync(int userId, DateTime appointmentTime, string rowVer)
+        public async Task<AppointmentResponse> DeleteAppointmentAsync(int userId, int id)
         {
             AppointmentResponse appointmentResponse = new();
 
             try
             {
-                Log.Information($"Attempting to delete appointment for user {userId} at {appointmentTime}");
-                var result = await _appointmentRepository.DeleteAppointmentAsync(userId, appointmentTime, rowVer);
+                Log.Information($"Attempting to delete appointment for user {userId} at appointmentID {id}");
+                var result = await _appointmentRepository.DeleteAppointmentAsync(userId,id);
                 appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
                 appointmentResponse.Data = new List<Appointment>(); 
             }
             catch (Exception ex)
             {
-                Log.Error($"Error deleting appointment for user {userId} at {appointmentTime}: {ex.Message}");
+                Log.Error($"Error deleting appointment for user {userId} at appointmentID {id}");
                 appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error deleting appointment." };
                 appointmentResponse.Data = new List<Appointment>();
             }

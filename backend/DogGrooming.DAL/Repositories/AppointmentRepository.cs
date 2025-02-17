@@ -68,13 +68,12 @@ namespace DogGrooming.DAL.Repositories
             
         }
 
-        public async Task<AppointmentResult> DeleteAppointmentAsync(int userId, DateTime appointmentTime, string rowVersion)
+        public async Task<AppointmentResult> DeleteAppointmentAsync(int userId, int id)
         {
             using var connection = new SqlConnection(_connectionString);
             var parameters = new DynamicParameters();
             parameters.Add("UserId", userId);
-            parameters.Add("AppointmentTime", appointmentTime);
-            parameters.Add("RowVer", rowVersion);
+            parameters.Add("Id", id);
             parameters.Add("Status", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             await connection.ExecuteAsync("DeleteAppointment", parameters, commandType: CommandType.StoredProcedure);

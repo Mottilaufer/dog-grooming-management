@@ -7,7 +7,7 @@ namespace DogGrooming.WebApi.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
-    [Authorize]
+    
     public class AppointmentController : ControllerBase
     {
         private readonly AppointmentManager _appointmentManager;
@@ -34,7 +34,7 @@ namespace DogGrooming.WebApi.Controllers
         [HttpDelete("delete-appointment")]
         public async Task<IActionResult> DeleteAppointment([FromBody] Appointment appointment)
         {
-            var result = await _appointmentManager.DeleteAppointmentAsync(appointment.UserId, appointment.AppointmentTime, appointment.RowVer);
+            var result = await _appointmentManager.DeleteAppointmentAsync(appointment.UserId, appointment.id);
             return Ok(result); 
         }
 

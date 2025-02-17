@@ -21,20 +21,21 @@ export const fetchAppointments = (token) => async (dispatch) => {
 };
 
 // פעולה למחוק תור
-export const deleteAppointment = (appointmentId, token) => async (dispatch) => {
+export const deleteAppointment = (appointmentData, token) => async (dispatch) => {
   try {
     const response = await axios.delete('/appointments/delete-appointment', {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
+      data: appointmentData // כאן הנתונים מועברים נכון
     });
 
     dispatch({
       type: 'DELETE_APPOINTMENT_SUCCESS',
-      payload: appointmentId
+      payload: response.data,
     });
   } catch (error) {
     dispatch({
       type: 'DELETE_APPOINTMENT_FAILURE',
-      payload: error.message
+      payload: error.message,
     });
   }
 };
@@ -43,7 +44,7 @@ export const deleteAppointment = (appointmentId, token) => async (dispatch) => {
 
 export const bookAppointment = (appointmentData, token) => async (dispatch) => {
   try {
-    const response = await axios.post('/appointments/add-appointment', {
+    const response = await axios.post('/appointments/add-appointment', appointmentData, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
