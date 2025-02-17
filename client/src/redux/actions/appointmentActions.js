@@ -20,25 +20,29 @@ export const fetchAppointments = (token) => async (dispatch) => {
   }
 };
 
-// פעולה למחוק תור
 export const deleteAppointment = (appointmentData, token) => async (dispatch) => {
   try {
     const response = await axios.delete('/appointments/delete-appointment', {
       headers: { Authorization: `Bearer ${token}` },
-      data: appointmentData // כאן הנתונים מועברים נכון
+      data: appointmentData
     });
 
     dispatch({
       type: 'DELETE_APPOINTMENT_SUCCESS',
       payload: response.data,
     });
+
+    return response.data; 
   } catch (error) {
     dispatch({
       type: 'DELETE_APPOINTMENT_FAILURE',
       payload: error.message,
     });
+
+    throw error;
   }
 };
+
 
 
 
@@ -65,21 +69,25 @@ export const bookAppointment = (appointmentData, token) => async (dispatch) => {
 };
 
 
-export const updateAppointment = (appointmentData, token) => async (dispatch) => {
+export const updateAppointment = (updatedData, token) => async (dispatch) => {
   try {
-    const response = await axios.put('/appointments/update-appointment', appointmentData, {
-      headers: { Authorization: `Bearer ${token}` }
+    const response = await axios.put('/appointments/update-appointment', updatedData, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     dispatch({
-      type: 'BOOK_APPOINTMENT_SUCCESS',
+      type: 'UPDATE_APPOINTMENT_SUCCESS',
       payload: response.data,
     });
+
+    return response.data; // ✅ החזרת הנתונים מהשרת כדי להשתמש בהם ב-then()
   } catch (error) {
     dispatch({
-      type: 'BOOK_APPOINTMENT_FAILURE',
+      type: 'UPDATE_APPOINTMENT_FAILURE',
       payload: error.message,
     });
+
+    throw error; // ✅ זריקת שגיאה כדי שהקריאה ב-`catch()` תעבוד
   }
 };
 

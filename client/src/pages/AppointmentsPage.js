@@ -48,18 +48,24 @@ const AppointmentsPage = () => {
     };
   
     dispatch(deleteAppointment(appointmentData, token))
-      .then(() => {
-        dispatch(fetchAppointments(token));
-        alert("Appointment deleted successfully!");
+      .then((data) => {
+        if (data?.successResponse?.success) {  // ✅ בדיקה לפי ה-`payload` שהשרת החזיר
+          alert("Appointment deleted successfully!");
+          dispatch(fetchAppointments(token)); // ריענון הרשימה
+        } else {
+          alert(data?.successResponse?.message || "Failed to delete appointment.");
+        }
       })
       .catch((error) => {
         console.error("Error deleting appointment", error);
-        alert("Failed to delete appointment.");
+        alert("Failed to delete appointment: " + error.message);
       });
   
     setShowDeletePopup(false);
     setAppointmentToDelete(null);
   };
+  
+  
   
 
   const confirmDelete = (appointmentId) => {
@@ -96,18 +102,24 @@ const AppointmentsPage = () => {
       updateAppointmentTime: updatedAppointment.updateAppointmentTime,
       rowVer: selectedAppointment.rowVer
     };
-
+  
     dispatch(updateAppointment(updatedData, token))
-      .then(() => {
-        dispatch(fetchAppointments(token));
-        alert("Appointment updated successfully!");
+      .then((data) => {
+        if (data?.successResponse?.success) {  // ✅ בדיקה לפי ה-`payload` שהשרת החזיר
+          alert("Appointment updated successfully!");
+          dispatch(fetchAppointments(token)); // ריענון הרשימה
+        } else {
+          alert(data?.successResponse?.message || "Failed to update appointment.");
+        }
       })
       .catch((error) => {
         console.error("Error updating appointment", error);
+        alert("Failed to update appointment: " + error.message);
       });
-
+  
     setShowPopup(false);
   };
+  
 
   const handleSearch = (e) => {
     const searchValue = e.target.value.toLowerCase();
@@ -146,13 +158,12 @@ const AppointmentsPage = () => {
   
     dispatch(bookAppointment(newAppointment, token))
       .then((data) => {
-        debugger
-        if (data?.successResponse?.success) {  // ✅ בודק אם התגובה מכילה אינדיקציה להצלחה
+        if (data?.successResponse?.success) {  // ✅ בודק אם התגובה מכילה הצלחה
           alert("Appointment created successfully!");
           dispatch(fetchAppointments(token)); // ריענון הרשימה
           setNewAppointmentTime(''); // איפוס השדה
         } else {
-          alert(data?.successResponse?.message);
+          alert(data?.successResponse?.message || "Failed to create appointment.");
         }
       })
       .catch((error) => {
@@ -160,6 +171,7 @@ const AppointmentsPage = () => {
         alert("Failed to create appointment: " + error.message);
       });
   };
+  
   
 
   if (loading) return <div>Loading...</div>;
