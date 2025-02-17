@@ -1,34 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAppointments, deleteAppointment, updateAppointment, bookAppointment } from '../../redux/actions/appointmentActions';
-import { useNavigate } from 'react-router-dom';
-import './AppointmentsPage.scss';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAppointments, deleteAppointment, updateAppointment, bookAppointment } from "../../redux/actions/appointmentActions";
+import { useNavigate } from "react-router-dom";
+import Popup from "../../components/Popup";
+import "./AppointmentsPage.scss";
 
 const AppointmentsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { token, id } = useSelector(state => state.user);
-  const { appointments, loading, error } = useSelector(state => state.appointments);
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
-  const [appointmentToDelete, setAppointmentToDelete] = useState(null);
-  
-  const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [search, setSearch] = useState('');
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
-  const [viewMode, setViewMode] = useState(false);
-  const [updatedAppointment, setUpdatedAppointment] = useState({
-    appointmentTime: '',
-    updateAppointmentTime: ''
-  });
+  const { token, id } = useSelector((state) => state.user);
+  const { appointments, loading, error } = useSelector((state) => state.appointments);
 
-  const [newAppointmentTime, setNewAppointmentTime] = useState('');
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [search, setSearch] = useState("");
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [popupType, setPopupType] = useState(null);
+  const [newAppointmentTime, setNewAppointmentTime] = useState("");
+  const [updatedAppointment, setUpdatedAppointment] = useState({
+    updateAppointmentTime: "",
+  });
 
   useEffect(() => {
     if (token) {
       dispatch(fetchAppointments(token));
     } else {
-      navigate('/');
+      navigate("/");
     }
   }, [token]);
 
@@ -39,18 +35,18 @@ const AppointmentsPage = () => {
   }, [appointments]);
 
   const handleDeleteConfirmed = () => {
-    if (!appointmentToDelete) return;
-  
+    if (!selectedAppointment) return;
+
     const appointmentData = {
-      id: appointmentToDelete.id,
+      id: selectedAppointment.id,
       userId: parseInt(id, 10),
     };
-  
+
     dispatch(deleteAppointment(appointmentData, token))
       .then((data) => {
-        if (data?.successResponse?.success) { 
+        if (data?.successResponse?.success) {
           alert("Appointment deleted successfully!");
-          dispatch(fetchAppointments(token)); 
+          dispatch(fetchAppointments(token));
         } else {
           alert(data?.successResponse?.message || "Failed to delete appointment.");
         }
@@ -59,39 +55,8 @@ const AppointmentsPage = () => {
         console.error("Error deleting appointment", error);
         alert("Failed to delete appointment: " + error.message);
       });
-  
-    setShowDeletePopup(false);
-    setAppointmentToDelete(null);
-  };
-  
-  
-  
 
-  const confirmDelete = (appointmentId) => {
-    const appointment = appointments.find(a => a.id === appointmentId);
-    setAppointmentToDelete(appointment);
-    setShowDeletePopup(true);
-  };
-  
-  
-
-  const handleViewAppointment = (appointmentId) => {
-    const selected = appointments.find(a => a.id === appointmentId);
-    setSelectedAppointment(selected);
-    setViewMode(true);
-    setShowPopup(true);
-  };
-
-  const handleEditAppointment = (appointmentId) => {
-    const selected = appointments.find(a => a.id === appointmentId);
-    setSelectedAppointment(selected);
-    setUpdatedAppointment({
-      appointmentTime: selected.appointmentTime,
-      updateAppointmentTime: selected.updateAppointmentTime,
-      rowVer: selected.rowVer
-    });
-    setViewMode(false);
-    setShowPopup(true);
+    setPopupType(null);
   };
 
   const handleEdit = () => {
@@ -99,14 +64,14 @@ const AppointmentsPage = () => {
       id: selectedAppointment.id,
       userId: id,
       updateAppointmentTime: updatedAppointment.updateAppointmentTime,
-      rowVer: selectedAppointment.rowVer
+      rowVer: selectedAppointment.rowVer,
     };
-  
+
     dispatch(updateAppointment(updatedData, token))
       .then((data) => {
-        if (data?.successResponse?.success) {  
+        if (data?.successResponse?.success) {
           alert("Appointment updated successfully!");
-          dispatch(fetchAppointments(token)); 
+          dispatch(fetchAppointments(token));
         } else {
           alert(data?.successResponse?.message || "Failed to update appointment.");
         }
@@ -115,52 +80,45 @@ const AppointmentsPage = () => {
         console.error("Error updating appointment", error);
         alert("Failed to update appointment: " + error.message);
       });
-  
-    setShowPopup(false);
+
+    setPopupType(null);
   };
-  
 
   const handleSearch = (e) => {
     const searchValue = e.target.value.toLowerCase();
     setSearch(searchValue);
-  
-    if (searchValue === "") {
 
+    if (searchValue === "") {
       setFilteredAppointments(appointments);
     } else {
-
-      const filteredData = appointments.filter(appointment =>
-        appointment.fullName.toLowerCase().includes(searchValue) || 
-        appointment.appointmentDate.includes(searchValue)
+      const filteredData = appointments.filter(
+        (appointment) =>
+          appointment.fullName.toLowerCase().includes(searchValue) ||
+          appointment.appointmentDate.includes(searchValue)
       );
       setFilteredAppointments(filteredData);
     }
   };
-  
-  const handleCancelDelete = () => {
-    setShowDeletePopup(false);
-    setAppointmentToDelete(null);
-  };
-  
+
   const handleNewAppointment = async (e) => {
     e.preventDefault();
-  
+
     if (!newAppointmentTime) {
       alert("Please select a valid appointment time.");
       return;
     }
-  
+
     const newAppointment = {
       userId: id,
-      appointmentTime: newAppointmentTime
+      appointmentTime: newAppointmentTime,
     };
-  
+
     dispatch(bookAppointment(newAppointment, token))
       .then((data) => {
-        if (data?.successResponse?.success) {  
+        if (data?.successResponse?.success) {
           alert("Appointment created successfully!");
-          dispatch(fetchAppointments(token)); 
-          setNewAppointmentTime(''); 
+          dispatch(fetchAppointments(token));
+          setNewAppointmentTime("");
         } else {
           alert(data?.successResponse?.message || "Failed to create appointment.");
         }
@@ -170,22 +128,12 @@ const AppointmentsPage = () => {
         alert("Failed to create appointment: " + error.message);
       });
   };
-  
-  
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="appointments-page">
       <h2>Your Appointments</h2>
 
-      <input
-        type="text"
-        placeholder="Search by Client Name or Appointment Date"
-        onChange={handleSearch}
-        value={search}
-      />
+      <input type="text" placeholder="Search by Client Name or Appointment Date" onChange={handleSearch} value={search} />
 
       <table>
         <thead>
@@ -196,106 +144,81 @@ const AppointmentsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredAppointments && filteredAppointments.map((appointment) => (
+        {filteredAppointments &&
+          filteredAppointments.map((appointment) => {
+          const isDisabled = appointment.userId.toString() !== id;
+          return (
             <tr key={appointment.id}>
               <td>{appointment.appointmentDate} - {appointment.appointmentTime}</td>
               <td>{appointment.fullName}</td>
               <td>
                 <>
-                  <button 
-                    onClick={() => handleViewAppointment(appointment.id)} 
-                    disabled={appointment?.userId.toString() !== id}
+                  <button
+                    onClick={() => { setSelectedAppointment(appointment); setPopupType("view"); }}
+                    disabled={isDisabled}
                   >
                     View
                   </button>
-                  <button 
-                    onClick={() => handleEditAppointment(appointment.id)} 
-                    disabled={appointment?.userId.toString() !== id}
+                  <button
+                    onClick={() => { 
+                      setSelectedAppointment(appointment); 
+                      setUpdatedAppointment({ updateAppointmentTime: appointment.appointmentTime }); 
+                      setPopupType("edit"); 
+                    }}
+                    disabled={isDisabled}
                   >
                     Edit
                   </button>
-                  <button 
-                    onClick={() => confirmDelete(appointment.id)} 
-                    disabled={appointment?.userId.toString() !== id}
+                  <button
+                    onClick={() => { setSelectedAppointment(appointment); setPopupType("delete"); }}
+                    disabled={isDisabled}
                   >
                     Delete
                   </button>
                 </>
               </td>
             </tr>
-          ))}
+          );
+        })}
         </tbody>
+
       </table>
 
-      {/* טופס להזנת תור חדש */}
       <h3>Book a New Appointment</h3>
       <form onSubmit={handleNewAppointment}>
         <label>
           Select Appointment Time:
-          <input
-            type="datetime-local"
-            value={newAppointmentTime}
-            onChange={(e) => setNewAppointmentTime(e.target.value)}
-            required
-          />
+          <input type="datetime-local" value={newAppointmentTime} onChange={(e) => setNewAppointmentTime(e.target.value)} required />
         </label>
         <button type="submit">Book Appointment</button>
       </form>
 
-      {showPopup && selectedAppointment && (
-  <div className="popup">
-    <div className="popup-content">
-      {viewMode ? (
-        <>
-          <h2>Appointment Details</h2>
-          <p><strong>Client Name:</strong> {selectedAppointment.fullName}</p>
-          <p><strong>Appointment Time:</strong> {`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
-          <p><strong>Request Created At:</strong> {selectedAppointment.createdAt}</p>
-          <button onClick={() => setShowPopup(false)}>Close</button>
-        </>
-      ) : (
-        <>
-          <h2>Edit Appointment</h2>
-          <p>Client Name: {selectedAppointment.fullName}</p>
-          <div>
-            <label>
-              Appointment Time (Current):
-              <p>{`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
-            </label>
-          </div>
-          <div>
-            <label>
-              New Appointment Time:
-              <input
-                type="datetime-local"
-                name="updateAppointmentTime"
-                value={updatedAppointment.updateAppointmentTime}
-                onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, updateAppointmentTime: e.target.value })}
-              />
-            </label>
-          </div>
-          <button onClick={handleEdit}>Save Changes</button>
-          <button onClick={() => setShowPopup(false)}>Close</button>
-        </>
+      {popupType && selectedAppointment && (
+        <Popup
+          title={popupType === "delete" ? "Confirm Deletion" : popupType === "edit" ? "Edit Appointment" : "Appointment Details"}
+          onClose={() => setPopupType(null)}
+        >
+          {popupType === "delete" ? (
+            <>
+              <p>Are you sure you want to delete the appointment for <strong>{selectedAppointment.fullName}</strong>?</p>
+              <button onClick={handleDeleteConfirmed} style={{ backgroundColor: "red", color: "white" }}>Confirm Delete</button>
+            </>
+          ) : popupType === "edit" ? (
+            <>
+              <p><strong>Current Appointment Time:</strong> {selectedAppointment.appointmentDate} {selectedAppointment.appointmentTime}</p>
+              <label>New Appointment Time:</label>
+              <input type="datetime-local" name="updateAppointmentTime" value={updatedAppointment.updateAppointmentTime} onChange={(e) => setUpdatedAppointment({ updateAppointmentTime: e.target.value })} />
+              <button onClick={handleEdit}>Save Changes</button>
+            </>
+          ) : (
+            <>
+              <p><strong>Client Name:</strong> {selectedAppointment.fullName}</p>
+              <p><strong>Appointment Time:</strong> {selectedAppointment.appointmentDate} {selectedAppointment.appointmentTime}</p>
+              <p><strong>Created At:</strong> {selectedAppointment.createdAt}</p>
+            </>
+          )}
+        </Popup>
       )}
-    </div>
-  </div>
-)}
-
-
-{/* ✅ עכשיו פופאפ המחיקה נפרד מפופאפ העריכה */}
-{showDeletePopup && appointmentToDelete && (
-  <div className="popup">
-    <div className="popup-content">
-      <h2>Confirm Deletion</h2>
-      <p>Are you sure you want to delete the appointment for <strong>{appointmentToDelete.fullName}</strong> on <strong>{appointmentToDelete.appointmentDate} at {appointmentToDelete.appointmentTime}</strong>?</p>
-      <button onClick={handleDeleteConfirmed} style={{ backgroundColor: 'red', color: 'white' }}>Confirm Delete</button>
-      <button onClick={handleCancelDelete}>Cancel</button>
-    </div>
-  </div>
-)}
-
-
     </div>
   );
 };
