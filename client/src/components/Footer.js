@@ -1,10 +1,9 @@
-
-// Footer.js
 import React from 'react';
+import './HeaderFooter.scss';  // ייבוא קובץ ה- SCSS
 
 const Footer = () => {
   return (
-    <footer>
+    <footer className="footer">
       <p>&copy; 2025 Dog Grooming</p>
     </footer>
   );

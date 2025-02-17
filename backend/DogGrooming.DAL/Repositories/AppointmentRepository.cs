@@ -123,9 +123,10 @@ namespace DogGrooming.DAL.Repositories
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
-            using var connection = new SqlConnection(_connectionString);
-            var query = "EXEC GetOccupiedAppointments";
-            return (await connection.QueryAsync<OccupiedAppointmentResponse>(query)).AsList();
+ 
+                using var connection = new SqlConnection(_connectionString);
+                var query = "EXEC GetOccupiedAppointments";
+                return (await connection.QueryAsync<OccupiedAppointmentResponse>(query)).AsList();
         }
     }
 }

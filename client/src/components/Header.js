@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../redux/reducers/userReducer';
 import { useNavigate } from 'react-router-dom'; 
+import './HeaderFooter.scss';  // ייבוא קובץ ה- SCSS
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -10,11 +11,12 @@ const Header = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/');
+    debugger
+    navigate('/homepage');
   };
 
   return (
-    <header>
+    <header className="header">
       <h1>Welcome to the Dog Grooming App</h1>
       {isAuthenticated && (
         <button onClick={handleLogout}>Log Out</button>

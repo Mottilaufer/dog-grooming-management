@@ -165,7 +165,6 @@ namespace DogGrooming.WebApi.Managers
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
-            // קריאה לפונקציה ב-DAL
             var availableAppointments = await _appointmentRepository.GetOccupiedAppointmentsAsync();
             return availableAppointments;
         }

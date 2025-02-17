@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { bookAppointment } from '../redux/actions/appointmentActions'; // כאן תוכל להוסיף את הפעולה המתאימה ל-Redux
+import './BookAppointmentPage.scss';
 
 const BookAppointmentPage = () => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const BookAppointmentPage = () => {
   };
 
   return (
-    <div>
+    <div className="book-appointment-container">
       <h1>Book New Appointment</h1>
       <form onSubmit={handleSubmit}>
         <label>

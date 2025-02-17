@@ -4,14 +4,13 @@ import axios from '../../services/axios';
 // פעולה ל-fetch הזמנות של המשתמש
 export const fetchAppointments = (token) => async (dispatch) => {
   try {
-    debugger
-    const response = await axios.post('/appointments/occupied-appointments', {
+    const response = await axios.get('/appointments/occupied-appointments', {
       headers: { Authorization: `Bearer ${token}` }
     });
 
     dispatch({
       type: 'FETCH_APPOINTMENTS_SUCCESS',
-      payload: response.data
+      payload: response.data // מחזיר את הנתונים
     });
   } catch (error) {
     dispatch({

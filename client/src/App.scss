@@ -1,0 +1,41 @@
+// src/App.scss
+
+.app-container {
+    text-align: center;
+    padding: 30px 18px 200px 18px;
+    font-family: 'Arial', sans-serif;
+
+    .app-content{
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+    }
+  }
+  
+  .app-header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .app-footer {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    margin-top: auto;
+  }
+  
+  .app-content {
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+  }
+  
+  /* כאן אפשר להוסיף עוד סגנונות לכל חלק של האפליקציה */
+  

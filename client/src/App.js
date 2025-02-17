@@ -5,25 +5,32 @@ import store from './redux/store';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
-import BookAppointmentPage from './pages//BookAppointmentPage';
+import BookAppointmentPage from './pages/BookAppointmentPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AppointmentsPage from './pages/AppointmentsPage';
+import './App.scss'; // ייבוא קובץ ה-SCSS
 
 function App() {
   return (
     <Provider store={store}>
       <Router>
-      <Header /> 
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/appointments" element={<AppointmentsPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/book-appointment" element={<BookAppointmentPage />} />
-        </Routes>
-        <Footer />
+        <div className="app-container">
+          <div className="page-content">
+          <Header className="app-header" />
+          <div className="app-content">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/appointments" element={<AppointmentsPage />} />
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/book-appointment" element={<BookAppointmentPage />} />
+            </Routes>
+          </div>
+          <Footer className="app-footer" />
+          </div>
+        </div>
       </Router>
     </Provider>
   );
