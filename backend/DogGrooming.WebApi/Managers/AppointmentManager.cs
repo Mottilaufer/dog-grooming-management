@@ -122,7 +122,6 @@ namespace DogGrooming.WebApi.Managers
             }
             catch (Exception ex)
             {
-                // טיפול בשגיאה
                 Log.Error($"Error fetching appointments for date {date}: {ex.Message}");
                 appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error fetching appointments." };
             }

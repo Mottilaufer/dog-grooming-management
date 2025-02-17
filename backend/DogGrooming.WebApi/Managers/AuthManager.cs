@@ -3,7 +3,7 @@ using DogGrooming.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using DogGrooming.WebApi.Helpers;
-using DogGrooming.Models.ApiResponse; // הוספת ה-using
+using DogGrooming.Models.ApiResponse; 
 
 namespace DogGrooming.WebApi.Managers
 {
@@ -11,13 +11,13 @@ namespace DogGrooming.WebApi.Managers
     {
         private readonly UserRepository _userRepository;
         private readonly JwtManager _jwtManager;
-        private readonly PasswordHasher _passwordHasher; // הוספנו את ה-PasswordHasher
+        private readonly PasswordHasher _passwordHasher;
 
         public AuthManager(UserRepository userRepository, JwtManager jwtManager, PasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _jwtManager = jwtManager;
-            _passwordHasher = passwordHasher; // אתחול ה-PasswordHasher
+            _passwordHasher = passwordHasher; 
         }
 
         public async Task<UserRegistrationResult> RegisterUserAsync(User user)
@@ -29,12 +29,11 @@ namespace DogGrooming.WebApi.Managers
             {
                 Log.Information($"Attempting to register user: {user.Username}");
 
-                // חשיבת ה-Hash וה-Salt עבור הסיסמה
+            
                 var (passwordHash, passwordSalt) = _passwordHasher.HashPassword(user.Password);
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
 
-                // רישום משתמש
                 var result = await _userRepository.RegisterUserAsync(user);
                 if (result.Status == 1)
                 {
@@ -91,7 +90,6 @@ namespace DogGrooming.WebApi.Managers
 
                 Log.Information($"User {user.Username} authenticated successfully.");
 
-                // יצירת טוקן JWT למשתמש
                 var token = _jwtManager.GenerateJwtToken(existingUser);
                 loginResponse.token = token;
                 loginResponse.successResponse.Success = true;

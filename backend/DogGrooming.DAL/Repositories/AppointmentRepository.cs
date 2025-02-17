@@ -91,7 +91,6 @@ namespace DogGrooming.DAL.Repositories
             {
                 using var connection = new SqlConnection(_connectionString);
 
-                // שואל מה-DB וממיר את ה-RowVer ל- Guid כ- string
                 var appointmentsRaw = await connection.QueryAsync<dynamic>(
                     "GetAppointmentsByUser",
                     new { UserId = userId },
@@ -102,7 +101,7 @@ namespace DogGrooming.DAL.Repositories
                 {
                     UserId = appointmentRaw.UserId,
                     AppointmentTime = appointmentRaw.AppointmentTime,
-                    RowVer = appointmentRaw.RowVer.ToString()  // המרת ה-GUID ל- string
+                    RowVer = appointmentRaw.RowVer.ToString()  
                 }).ToList();
 
                 return appointments;

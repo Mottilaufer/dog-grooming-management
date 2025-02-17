@@ -23,7 +23,6 @@ namespace DogGrooming.DAL.Repositories
             {
                 Log.Information("Authenticating user: {Username}", username);
 
-                // חיפוש המשתמש על פי שם המשתמש בלבד
                 var user = await connection.QuerySingleOrDefaultAsync<User>(
                     "AuthenticateUser",
                     new { Username = username },
