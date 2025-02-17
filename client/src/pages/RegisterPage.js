@@ -1,7 +1,6 @@
-// src/pages/RegisterPage.js
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { registerUser } from '../redux/actions/userActions'; // מייבא את הפעולה של הרישום
+import { registerUser } from '../redux/actions/userActions'; 
 import { useNavigate } from 'react-router-dom'; 
 
 const RegisterPage = () => {
@@ -19,7 +18,6 @@ const RegisterPage = () => {
 
     const userData = { username, password, fullName };
 
-    // קריאה לפעולה של הרישום
     const response = await dispatch(registerUser(userData));
 
     if (response.success) {

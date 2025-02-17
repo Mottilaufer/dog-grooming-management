@@ -22,7 +22,6 @@ const AppointmentsPage = () => {
     updateAppointmentTime: ''
   });
 
-  // משתנים לניהול יצירת תור חדש
   const [newAppointmentTime, setNewAppointmentTime] = useState('');
 
   useEffect(() => {
@@ -49,9 +48,9 @@ const AppointmentsPage = () => {
   
     dispatch(deleteAppointment(appointmentData, token))
       .then((data) => {
-        if (data?.successResponse?.success) {  // ✅ בדיקה לפי ה-`payload` שהשרת החזיר
+        if (data?.successResponse?.success) { 
           alert("Appointment deleted successfully!");
-          dispatch(fetchAppointments(token)); // ריענון הרשימה
+          dispatch(fetchAppointments(token)); 
         } else {
           alert(data?.successResponse?.message || "Failed to delete appointment.");
         }
@@ -105,9 +104,9 @@ const AppointmentsPage = () => {
   
     dispatch(updateAppointment(updatedData, token))
       .then((data) => {
-        if (data?.successResponse?.success) {  // ✅ בדיקה לפי ה-`payload` שהשרת החזיר
+        if (data?.successResponse?.success) {  
           alert("Appointment updated successfully!");
-          dispatch(fetchAppointments(token)); // ריענון הרשימה
+          dispatch(fetchAppointments(token)); 
         } else {
           alert(data?.successResponse?.message || "Failed to update appointment.");
         }
@@ -126,10 +125,10 @@ const AppointmentsPage = () => {
     setSearch(searchValue);
   
     if (searchValue === "") {
-      // אם השדה ריק, הצג את כל הפגישות מחדש
+
       setFilteredAppointments(appointments);
     } else {
-      // סינון לפי שם לקוח או תאריך
+
       const filteredData = appointments.filter(appointment =>
         appointment.fullName.toLowerCase().includes(searchValue) || 
         appointment.appointmentDate.includes(searchValue)
@@ -158,10 +157,10 @@ const AppointmentsPage = () => {
   
     dispatch(bookAppointment(newAppointment, token))
       .then((data) => {
-        if (data?.successResponse?.success) {  // ✅ בודק אם התגובה מכילה הצלחה
+        if (data?.successResponse?.success) {  
           alert("Appointment created successfully!");
-          dispatch(fetchAppointments(token)); // ריענון הרשימה
-          setNewAppointmentTime(''); // איפוס השדה
+          dispatch(fetchAppointments(token)); 
+          setNewAppointmentTime(''); 
         } else {
           alert(data?.successResponse?.message || "Failed to create appointment.");
         }

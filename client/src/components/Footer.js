@@ -1,5 +1,5 @@
 import React from 'react';
-import './HeaderFooter.scss';  // ייבוא קובץ ה- SCSS
+import './HeaderFooter.scss';  
 
 const Footer = () => {
   return (

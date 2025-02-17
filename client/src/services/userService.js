@@ -1,4 +1,3 @@
-// services/userService.js
 import axios from './axios';
 
 export const login = async (credentials) => {

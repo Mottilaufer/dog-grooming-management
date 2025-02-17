@@ -9,7 +9,7 @@ import BookAppointmentPage from './pages/BookAppointmentPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AppointmentsPage from './pages/AppointmentsPage';
-import './App.scss'; // ייבוא קובץ ה-SCSS
+import './App.scss'; 
 
 function App() {
   return (

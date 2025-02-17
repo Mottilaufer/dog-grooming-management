@@ -1,7 +1,7 @@
-// src/redux/actions/appointmentsActions.js
+
 import axios from '../../services/axios';
 
-// פעולה ל-fetch הזמנות של המשתמש
+
 export const fetchAppointments = (token) => async (dispatch) => {
   try {
     const response = await axios.get('/appointments/occupied-appointments', {
@@ -10,7 +10,7 @@ export const fetchAppointments = (token) => async (dispatch) => {
 
     dispatch({
       type: 'FETCH_APPOINTMENTS_SUCCESS',
-      payload: response.data // מחזיר את הנתונים
+      payload: response.data 
     });
   } catch (error) {
     dispatch({
@@ -80,14 +80,14 @@ export const updateAppointment = (updatedData, token) => async (dispatch) => {
       payload: response.data,
     });
 
-    return response.data; // ✅ החזרת הנתונים מהשרת כדי להשתמש בהם ב-then()
+    return response.data; 
   } catch (error) {
     dispatch({
       type: 'UPDATE_APPOINTMENT_FAILURE',
       payload: error.message,
     });
 
-    throw error; // ✅ זריקת שגיאה כדי שהקריאה ב-`catch()` תעבוד
+    throw error; 
   }
 };
 
