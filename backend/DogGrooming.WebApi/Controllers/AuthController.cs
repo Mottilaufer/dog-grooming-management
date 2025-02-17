@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DogGrooming.Models;
 using DogGrooming.WebApi.Managers;
+using DogGrooming.WebApi.Interfaces;
 
 namespace DogGrooming.WebApi.Controllers
 {
@@ -8,9 +9,9 @@ namespace DogGrooming.WebApi.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AuthManager _authManager;
+        private readonly IAuthManager _authManager;
 
-        public AuthController(AuthManager authManager)
+        public AuthController(IAuthManager authManager)
         {
             _authManager = authManager;
         }
@@ -30,13 +31,8 @@ namespace DogGrooming.WebApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] User user)
         {
-            if (string.IsNullOrWhiteSpace(user.Username) || string.IsNullOrWhiteSpace(user.Password))
-            {
-                return BadRequest("Username and password are required.");
-            }
-
             var result = await _authManager.LoginAsync(user);
-            return result;
+            return Ok(result);
         }
     }
 }

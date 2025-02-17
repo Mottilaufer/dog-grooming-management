@@ -2,17 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using DogGrooming.WebApi.Managers;
 using DogGrooming.Models;
+using DogGrooming.WebApi.Interfaces;
 
 namespace DogGrooming.WebApi.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
     [Authorize]
+    
     public class AppointmentController : ControllerBase
     {
-        private readonly AppointmentManager _appointmentManager;
+        private readonly IAppointmentManager _appointmentManager;
 
-        public AppointmentController(AppointmentManager appointmentManager)
+        public AppointmentController(IAppointmentManager appointmentManager)
         {
             _appointmentManager = appointmentManager;
         }
@@ -27,14 +29,14 @@ namespace DogGrooming.WebApi.Controllers
         [HttpPut("update-appointment")]
         public async Task<IActionResult> UpdateAppointment([FromBody] Appointment appointment)
         {
-            var result = await _appointmentManager.UpdateAppointmentAsync(appointment.UserId, appointment.AppointmentTime, appointment.RowVer , appointment.UpdateAppointmentTime);
+            var result = await _appointmentManager.UpdateAppointmentAsync(appointment.UserId, appointment.RowVer , appointment.UpdateAppointmentTime, appointment.id);
             return Ok(result);
         }
 
         [HttpDelete("delete-appointment")]
         public async Task<IActionResult> DeleteAppointment([FromBody] Appointment appointment)
         {
-            var result = await _appointmentManager.DeleteAppointmentAsync(appointment.UserId, appointment.AppointmentTime, appointment.RowVer);
+            var result = await _appointmentManager.DeleteAppointmentAsync(appointment.UserId, appointment.id);
             return Ok(result); 
         }
 
@@ -56,6 +58,12 @@ namespace DogGrooming.WebApi.Controllers
         public async Task<IActionResult> GetOccupiedAppointments()
         {
             var result = await _appointmentManager.GetOccupiedAppointmentsAsync();
+            return Ok(result);
+        }
+        [HttpGet("available-slots")]
+        public async Task<IActionResult> GetAvailableSlots()
+        {
+            var result = await _appointmentManager.GetAvailableSlotsAsync();
             return Ok(result);
         }
 

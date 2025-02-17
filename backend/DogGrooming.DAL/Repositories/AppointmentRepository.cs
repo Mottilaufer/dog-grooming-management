@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DogGrooming.DAL.Interfaces;
 using DogGrooming.Models;
 using DogGrooming.Models.ApiResponse;
 using Microsoft.AspNetCore.Components.Routing;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DogGrooming.DAL.Repositories
 {
-    public class AppointmentRepository
+    public class AppointmentRepository : IAppointmentRepository
     {
         private readonly string _connectionString;
 
@@ -39,7 +40,7 @@ namespace DogGrooming.DAL.Repositories
             };
         }
 
-        public async Task<AppointmentResult> UpdateAppointmentAsync(int userId, DateTime appointmentTime, string rowVersion, DateTime updateAppointmentTime)
+        public async Task<AppointmentResult> UpdateAppointmentAsync(int userId, string rowVersion, DateTime updateAppointmentTime,int id)
         {
             try
             {
@@ -47,7 +48,7 @@ namespace DogGrooming.DAL.Repositories
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
-                parameters.Add("AppointmentTime", appointmentTime);
+                parameters.Add("Id", id);
                 parameters.Add("UpdateAppointmentTime", updateAppointmentTime); 
                 parameters.Add("RowVer", rowVersion);
                 parameters.Add("Status", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -68,13 +69,12 @@ namespace DogGrooming.DAL.Repositories
             
         }
 
-        public async Task<AppointmentResult> DeleteAppointmentAsync(int userId, DateTime appointmentTime, string rowVersion)
+        public async Task<AppointmentResult> DeleteAppointmentAsync(int userId, int id)
         {
             using var connection = new SqlConnection(_connectionString);
             var parameters = new DynamicParameters();
             parameters.Add("UserId", userId);
-            parameters.Add("AppointmentTime", appointmentTime);
-            parameters.Add("RowVer", rowVersion);
+            parameters.Add("Id", id);
             parameters.Add("Status", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
             await connection.ExecuteAsync("DeleteAppointment", parameters, commandType: CommandType.StoredProcedure);
@@ -92,7 +92,6 @@ namespace DogGrooming.DAL.Repositories
             {
                 using var connection = new SqlConnection(_connectionString);
 
-                // שואל מה-DB וממיר את ה-RowVer ל- Guid כ- string
                 var appointmentsRaw = await connection.QueryAsync<dynamic>(
                     "GetAppointmentsByUser",
                     new { UserId = userId },
@@ -103,7 +102,7 @@ namespace DogGrooming.DAL.Repositories
                 {
                     UserId = appointmentRaw.UserId,
                     AppointmentTime = appointmentRaw.AppointmentTime,
-                    RowVer = appointmentRaw.RowVer.ToString()  // המרת ה-GUID ל- string
+                    RowVer = appointmentRaw.RowVer.ToString()  
                 }).ToList();
 
                 return appointments;
@@ -123,9 +122,52 @@ namespace DogGrooming.DAL.Repositories
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
-            using var connection = new SqlConnection(_connectionString);
-            var query = "EXEC GetOccupiedAppointments";
-            return (await connection.QueryAsync<OccupiedAppointmentResponse>(query)).AsList();
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = "EXEC GetOccupiedAppointments";
+                return (await connection.QueryAsync<OccupiedAppointmentResponse>(query)).AsList();
+
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error fetching appointments : {ex.Message}");
+                throw;
+            }
+ 
         }
+
+        public async Task<List<AvailableDay>> GetAvailableAppointmentSlots()
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                var query = "EXEC GetAvailableAppointmentSlots";
+
+                var flatData = await connection.QueryAsync<(string AppointmentDate, string AppointmentTime, bool IsBooked)>(query);
+
+                var groupedData = flatData
+                    .GroupBy(d => d.AppointmentDate) 
+                    .Select(g => new AvailableDay
+                    {
+                        Date = g.Key,
+                        Slots = g.Select(s => new TimeSlot
+                        {
+                            Time = s.AppointmentTime,
+                            IsBooked = s.IsBooked
+                        }).ToList()
+                    })
+                    .ToList();
+
+                return groupedData;
+            }
+            catch(Exception ex)
+            {
+                Log.Error($"Error fetching שvailable appointments : {ex.Message}");
+                throw;
+            }
+           
+        }
+
     }
 }

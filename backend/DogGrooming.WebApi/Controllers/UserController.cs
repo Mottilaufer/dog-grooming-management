@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
+using DogGrooming.DAL.Interfaces;
 
 namespace DogGrooming.WebApi.Controllers
 {
@@ -10,9 +11,9 @@ namespace DogGrooming.WebApi.Controllers
     [Authorize] 
     public class UserController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
 
-        public UserController(UserRepository userRepository)
+        public UserController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }

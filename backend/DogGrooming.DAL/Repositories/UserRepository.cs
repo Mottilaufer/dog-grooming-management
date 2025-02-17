@@ -4,10 +4,11 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using DogGrooming.Models;
 using Serilog;
+using DogGrooming.DAL.Interfaces;
 
 namespace DogGrooming.DAL.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
 
@@ -23,7 +24,6 @@ namespace DogGrooming.DAL.Repositories
             {
                 Log.Information("Authenticating user: {Username}", username);
 
-                // חיפוש המשתמש על פי שם המשתמש בלבד
                 var user = await connection.QuerySingleOrDefaultAsync<User>(
                     "AuthenticateUser",
                     new { Username = username },

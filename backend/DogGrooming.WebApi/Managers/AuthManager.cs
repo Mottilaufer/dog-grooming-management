@@ -2,63 +2,74 @@
 using DogGrooming.Models;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using DogGrooming.WebApi.Helpers; // הוספת ה-using
+using DogGrooming.WebApi.Helpers;
+using DogGrooming.Models.ApiResponse;
+using DogGrooming.WebApi.Interfaces;
+using DogGrooming.DAL.Interfaces;
 
 namespace DogGrooming.WebApi.Managers
 {
-    public class AuthManager
+    public class AuthManager : IAuthManager
     {
-        private readonly UserRepository _userRepository;
-        private readonly JwtManager _jwtManager;
-        private readonly PasswordHasher _passwordHasher; // הוספנו את ה-PasswordHasher
+        private readonly IUserRepository _userRepository;
+        private readonly IJwtManager _jwtManager;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public AuthManager(UserRepository userRepository, JwtManager jwtManager, PasswordHasher passwordHasher)
+        public AuthManager(IUserRepository userRepository, IJwtManager jwtManager, IPasswordHasher passwordHasher)
         {
             _userRepository = userRepository;
             _jwtManager = jwtManager;
-            _passwordHasher = passwordHasher; // אתחול ה-PasswordHasher
+            _passwordHasher = passwordHasher; 
         }
 
         public async Task<UserRegistrationResult> RegisterUserAsync(User user)
         {
+            UserRegistrationResult userRegistrationResult = new ();
+            userRegistrationResult.successResponse = new();
+            string message = string.Empty;
             try
             {
                 Log.Information($"Attempting to register user: {user.Username}");
 
-                // חשיבת ה-Hash וה-Salt עבור הסיסמה
+            
                 var (passwordHash, passwordSalt) = _passwordHasher.HashPassword(user.Password);
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
 
-                // רישום משתמש
                 var result = await _userRepository.RegisterUserAsync(user);
                 if (result.Status == 1)
                 {
-                    Log.Information($"User {user.Username} registered successfully.");
+                    message = $"User {user.Username} registered successfully.";
+                    userRegistrationResult.successResponse.Success = true;
                 }
                 else
                 {
-                    Log.Warning($"User {user.Username} registration failed: {result.Message}");
+                    message = $"User {user.Username} registration failed: {result.Message}";
                 }
 
-                return result;
+                Log.Information(message);
+                userRegistrationResult.successResponse.Message = message;
             }
             catch (Exception ex)
             {
                 Log.Error($"Error registering user {user.Username}: {ex.Message}");
-                return new UserRegistrationResult
-                {
-                    Status = -3,
-                    UserId = null,
-                    Message = "Unexpected error occurred."
-                };
+                userRegistrationResult.successResponse.Message = ex.Message;
+                userRegistrationResult.successResponse.Success = false;
             }
+            return userRegistrationResult;
         }
 
-        public async Task<IActionResult> LoginAsync(User user)
+        public async Task<LoginResponse> LoginAsync(User user)
         {
+            LoginResponse loginResponse = new();
+            loginResponse.successResponse = new();
             try
             {
+                if (string.IsNullOrWhiteSpace(user?.Username) || string.IsNullOrWhiteSpace(user?.Password))
+                {
+                    loginResponse.successResponse.Message = "Username and password are required.";
+                    return loginResponse;
+                }
                 Log.Information($"Attempting to authenticate user: {user.Username}");
 
                 
@@ -67,27 +78,34 @@ namespace DogGrooming.WebApi.Managers
                 if (existingUser == null)
                 {
                     Log.Warning($"User {user.Username} not found.");
-                    return new UnauthorizedObjectResult("Invalid credentials.");
+                    loginResponse.successResponse.Message = "Invalid credentials.";
+                    return loginResponse;
                 }
 
                 
                 if (!_passwordHasher.VerifyPassword(user.Password, existingUser.PasswordHash, existingUser.PasswordSalt))
                 {
                     Log.Warning($"Invalid password for user: {user.Username}");
-                    return new UnauthorizedObjectResult("Invalid credentials.");
+                    loginResponse.successResponse.Message = "Invalid credentials.";
+                    return loginResponse;
                 }
 
                 Log.Information($"User {user.Username} authenticated successfully.");
 
-                // יצירת טוקן JWT למשתמש
                 var token = _jwtManager.GenerateJwtToken(existingUser);
-                return new OkObjectResult(new { token });
+                loginResponse.token = token;
+                loginResponse.successResponse.Success = true;
+
             }
             catch (Exception ex)
             {
                 Log.Error($"Error during login attempt for user {user.Username}: {ex.Message}");
-                return new UnauthorizedObjectResult("Unexpected error occurred.");
+                loginResponse.token = null;
+                loginResponse.successResponse.Success = false;
+                loginResponse.successResponse.Message = $"Error during login attempt for user {user.Username}: {ex.Message}";
+
             }
+            return loginResponse;
         }
 
 

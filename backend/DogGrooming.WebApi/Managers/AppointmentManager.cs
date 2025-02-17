@@ -1,16 +1,19 @@
-﻿using DogGrooming.DAL.Repositories;
+﻿using DogGrooming.DAL.Interfaces;
+using DogGrooming.DAL.Repositories;
 using DogGrooming.Models;
 using DogGrooming.Models.ApiResponse;
+using DogGrooming.WebApi.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
 namespace DogGrooming.WebApi.Managers
 {
-    public class AppointmentManager
+    public class AppointmentManager : IAppointmentManager
     {
-        private readonly UserRepository _userRepository;
-        private readonly AppointmentRepository _appointmentRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
 
-        public AppointmentManager(UserRepository userRepository, AppointmentRepository appointmentRepository)
+        public AppointmentManager(IUserRepository userRepository, IAppointmentRepository appointmentRepository)
         {
             _userRepository = userRepository;
             _appointmentRepository = appointmentRepository;
@@ -18,21 +21,21 @@ namespace DogGrooming.WebApi.Managers
 
 
 
-        public async Task<AppointmentResponse> UpdateAppointmentAsync(int userId, DateTime appointmentTime, string rowVer, DateTime updateAppointmentTime)
+        public async Task<AppointmentResponse> UpdateAppointmentAsync(int userId,  string rowVer, DateTime updateAppointmentTime, int id)
         {
             AppointmentResponse appointmentResponse = new();
 
             try
             {
-                Log.Information($"Attempting to update appointment for user {userId} at {appointmentTime}");
-                var result = await _appointmentRepository.UpdateAppointmentAsync(userId, appointmentTime, rowVer, updateAppointmentTime);
-                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                Log.Information($"Attempting to update appointment for user {userId} - updated appointment {updateAppointmentTime}");
+                var result = await _appointmentRepository.UpdateAppointmentAsync(userId, rowVer, updateAppointmentTime,id);
+                appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
                 appointmentResponse.Data = new List<Appointment>();  
             }
             catch (Exception ex)
             {
-                Log.Error($"Error updating appointment for user {userId} at {appointmentTime}: {ex.Message}");
-                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error updating appointment." };
+                Log.Error($"Error updating appointment for user {userId} {userId} - updated appointment {updateAppointmentTime}: {ex.Message}");
+                appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error updating appointment." };
                 appointmentResponse.Data = new List<Appointment>();
             }
 
@@ -40,21 +43,21 @@ namespace DogGrooming.WebApi.Managers
         }
 
 
-        public async Task<AppointmentResponse> DeleteAppointmentAsync(int userId, DateTime appointmentTime, string rowVer)
+        public async Task<AppointmentResponse> DeleteAppointmentAsync(int userId, int id)
         {
             AppointmentResponse appointmentResponse = new();
 
             try
             {
-                Log.Information($"Attempting to delete appointment for user {userId} at {appointmentTime}");
-                var result = await _appointmentRepository.DeleteAppointmentAsync(userId, appointmentTime, rowVer);
-                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                Log.Information($"Attempting to delete appointment for user {userId} at appointmentID {id}");
+                var result = await _appointmentRepository.DeleteAppointmentAsync(userId,id);
+                appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
                 appointmentResponse.Data = new List<Appointment>(); 
             }
             catch (Exception ex)
             {
-                Log.Error($"Error deleting appointment for user {userId} at {appointmentTime}: {ex.Message}");
-                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error deleting appointment." };
+                Log.Error($"Error deleting appointment for user {userId} at appointmentID {id}");
+                appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error deleting appointment." };
                 appointmentResponse.Data = new List<Appointment>();
             }
 
@@ -76,17 +79,17 @@ namespace DogGrooming.WebApi.Managers
                 {
                     Log.Warning($"No appointments found for user {userId}");
 
-                    appointmentResponse.Status = new IsSuccess { Success = true, Message = "No appointments found for this user." };
+                    appointmentResponse.successResponse = new SuccessResponse { Success = true, Message = "No appointments found for this user." };
                     return appointmentResponse; 
                 }
 
-                appointmentResponse.Status = new IsSuccess { Success = true, Message = "Appointments retrieved successfully." };
+                appointmentResponse.successResponse = new SuccessResponse { Success = true, Message = "Appointments retrieved successfully." };
                 appointmentResponse.Data = appointments; 
             }
             catch (Exception ex)
             {
                 Log.Error($"Error fetching appointments for user {userId}: {ex.Message}");
-                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error fetching appointments." };
+                appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error fetching appointments." };
             }
 
             return appointmentResponse; 
@@ -109,21 +112,20 @@ namespace DogGrooming.WebApi.Managers
                 {
                     Log.Warning($"No appointments found for date {date}");
 
-                    appointmentResponse.Status = new IsSuccess { Success = true, Message = "No appointments found for the specified date." };
+                    appointmentResponse.successResponse = new SuccessResponse { Success = true, Message = "No appointments found for the specified date." };
                     return appointmentResponse;
 
                 }
 
 
-                appointmentResponse.Status = new IsSuccess { Success = true, Message = "Appointments retrieved successfully." };
+                appointmentResponse.successResponse = new SuccessResponse { Success = true, Message = "Appointments retrieved successfully." };
                 appointmentResponse.Data = appointments;
                
             }
             catch (Exception ex)
             {
-                // טיפול בשגיאה
                 Log.Error($"Error fetching appointments for date {date}: {ex.Message}");
-                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error fetching appointments." };
+                appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error fetching appointments." };
             }
 
             return appointmentResponse;
@@ -143,20 +145,20 @@ namespace DogGrooming.WebApi.Managers
                 {
                     Log.Warning($"User {userId} tried to add a conflicting appointment at {appointmentTime}");
 
-                    appointmentResponse.Status = new IsSuccess { Success = false, Message = "Appointment already exists at this time." };
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Appointment already exists at this time." };
                     appointmentResponse.Data = new List<Appointment>();  
                     return appointmentResponse;
                 }
 
         
                 var result = await _appointmentRepository.AddAppointmentAsync(userId, appointmentTime);
-                appointmentResponse.Status = new IsSuccess { Success = result.Status == 1, Message = result.Message };
+                appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
                 appointmentResponse.Data = new List<Appointment>();
             }
             catch (Exception ex)
             {
                 Log.Error($"Error adding appointment for user {userId} at {appointmentTime}: {ex.Message}");
-                appointmentResponse.Status = new IsSuccess { Success = false, Message = "Error adding appointment." };
+                appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error adding appointment." };
                 appointmentResponse.Data = new List<Appointment>();
             }
 
@@ -165,9 +167,14 @@ namespace DogGrooming.WebApi.Managers
 
         public async Task<List<OccupiedAppointmentResponse>> GetOccupiedAppointmentsAsync()
         {
-            // קריאה לפונקציה ב-DAL
-            var availableAppointments = await _appointmentRepository.GetOccupiedAppointmentsAsync();
-            return availableAppointments;
+            var occupiedAppointmentResponse = await _appointmentRepository.GetOccupiedAppointmentsAsync();
+            return occupiedAppointmentResponse;
+        }
+
+        public async Task<List<AvailableDay>> GetAvailableSlotsAsync()
+        {
+            var availableSlotsResponse = await _appointmentRepository.GetAvailableAppointmentSlots();
+            return availableSlotsResponse;
         }
     }
 }

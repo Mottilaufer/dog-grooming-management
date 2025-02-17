@@ -1,0 +1,54 @@
+body {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+  }
+}
+
+
+.app-container {
+    text-align: center;
+    padding: 30px 18px 200px 18px;
+    font-family: 'Arial', sans-serif;
+
+    .app-content{
+        display: inline-block;
+        vertical-align: top;
+        width: 100%;
+        max-width: 700px;
+        text-align: center;
+    }
+  }
+  
+  .app-header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .app-footer {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    margin-top: auto;
+  }
+  
+  .app-content {
+    flex: 1;
+    // padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+  }
+  
+
+  

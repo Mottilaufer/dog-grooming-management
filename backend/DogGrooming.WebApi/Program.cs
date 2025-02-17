@@ -8,37 +8,44 @@ using DogGrooming.WebApi.Configuration;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using DogGrooming.WebApi.Helpers;
+using DogGrooming.DAL.Interfaces;
+using DogGrooming.WebApi.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ הוספת Serilog – כתיבת לוגים לקובץ
+
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()  // הצגת לוגים גם בקונסולה
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day) // קובץ לוגים יומי
+    .WriteTo.Console()  
+    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-builder.Host.UseSerilog(); // שימוש ב-Serilog במקום ה-Logger הרגיל
+builder.Host.UseSerilog(); 
 
-// 🔹 הגדרת JWT
 var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("Jwt").Bind(jwtSettings);
 var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
-// 🔹 הוספת שירותים ל-DI
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<DatabaseContext>();
-builder.Services.AddSingleton<UserRepository>();
-builder.Services.AddSingleton<JwtManager>();
-builder.Services.AddSingleton<AuthManager>();
-builder.Services.AddSingleton<PasswordHasher>();
-builder.Services.AddScoped<AppointmentManager>();
-builder.Services.AddScoped<AppointmentRepository>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IJwtManager, JwtManager>();
+builder.Services.AddSingleton<IAuthManager, AuthManager>();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IAppointmentManager, AppointmentManager>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()  
+               .AllowAnyMethod()  
+               .AllowAnyHeader();
+    });
+});
 
-
-
-// 🔹 הוספת JWT Authentication
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -57,7 +64,7 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// 🔹 הוספת Swagger עם תמיכה ב-JWT
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -95,9 +102,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddControllers();
 
 var app = builder.Build();
-
+app.UseCors("AllowAll");
+app.UseRouting();
 app.UseHttpsRedirection();
-app.UseMiddleware<JwtMiddleware>(); // שימוש ב-Middleware לאימות JWT
+app.UseMiddleware<JwtMiddleware>(); 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -108,7 +116,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// ✅ הדפסת הודעה ללוג על התחלת השרת
+
 Log.Information("Starting Dog Grooming API...");
 
 app.Run();

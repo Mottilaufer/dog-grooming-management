@@ -8,7 +8,7 @@ namespace DogGrooming.Models.ApiResponse
 {
     public class AppointmentResponse
     {
-        public IsSuccess Status { get; set; }
+        public SuccessResponse successResponse { get; set; }
         public IEnumerable<Appointment> Data { get; set; }
     }
 }

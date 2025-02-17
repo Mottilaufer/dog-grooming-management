@@ -35,7 +35,7 @@ public class JwtMiddleware
                     return;
                 }
 
-                var userId = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+                var userId = jwtToken.Claims.FirstOrDefault(x => x.Type == "id").Value;
 
                 _logger.LogInformation($"JWT Token: {token}");
                 _logger.LogInformation($"Extracted User ID: {userId}");
