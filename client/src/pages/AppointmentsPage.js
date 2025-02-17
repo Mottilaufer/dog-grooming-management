@@ -9,7 +9,9 @@ const AppointmentsPage = () => {
   const navigate = useNavigate();
   const { token, id } = useSelector(state => state.user);
   const { appointments, loading, error } = useSelector(state => state.appointments);
-
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null);
+  
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedAppointment, setSelectedAppointment] = useState(null);
@@ -37,26 +39,35 @@ const AppointmentsPage = () => {
     }
   }, [appointments]);
 
-  const handleDelete = (appointmentId, userId) => {
-    // יצירת האובייקט עם הנתונים הדרושים
+  const handleDeleteConfirmed = () => {
+    if (!appointmentToDelete) return;
+  
     const appointmentData = {
-      id: appointmentId,
+      id: appointmentToDelete.id,
       userId: parseInt(id, 10),
-      
     };
   
-    // שליחת האובייקט לפונקציה שמבצעת את מחיקת הפגישה
     dispatch(deleteAppointment(appointmentData, token))
-    .then(() => {
-      dispatch(fetchAppointments(token));
-      alert("Appointment deleted successfully!");
-    })
-    .catch((error) => {
-      console.error("Error deleting appointment", error);
-      alert("Failed to delete appointment.");
-    });
-
+      .then(() => {
+        dispatch(fetchAppointments(token));
+        alert("Appointment deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error deleting appointment", error);
+        alert("Failed to delete appointment.");
+      });
+  
+    setShowDeletePopup(false);
+    setAppointmentToDelete(null);
   };
+  
+
+  const confirmDelete = (appointmentId) => {
+    const appointment = appointments.find(a => a.id === appointmentId);
+    setAppointmentToDelete(appointment);
+    setShowDeletePopup(true);
+  };
+  
   
 
   const handleViewAppointment = (appointmentId) => {
@@ -115,29 +126,41 @@ const AppointmentsPage = () => {
     }
   };
   
-
+  const handleCancelDelete = () => {
+    setShowDeletePopup(false);
+    setAppointmentToDelete(null);
+  };
+  
   const handleNewAppointment = async (e) => {
     e.preventDefault();
-
+  
     if (!newAppointmentTime) {
       alert("Please select a valid appointment time.");
       return;
     }
-
+  
     const newAppointment = {
       userId: id,
       appointmentTime: newAppointmentTime
     };
-
-    try {
-      await dispatch(bookAppointment(newAppointment, token));
-      alert("Appointment created successfully!");
-      dispatch(fetchAppointments(token)); // לרענן את הרשימה
-      setNewAppointmentTime(''); // לנקות את השדה
-    } catch (error) {
-      console.error("Error booking appointment", error);
-    }
+  
+    dispatch(bookAppointment(newAppointment, token))
+      .then((data) => {
+        debugger
+        if (data?.successResponse?.success) {  // ✅ בודק אם התגובה מכילה אינדיקציה להצלחה
+          alert("Appointment created successfully!");
+          dispatch(fetchAppointments(token)); // ריענון הרשימה
+          setNewAppointmentTime(''); // איפוס השדה
+        } else {
+          alert(data?.successResponse?.message);
+        }
+      })
+      .catch((error) => {
+        console.error("Error booking appointment", error);
+        alert("Failed to create appointment: " + error.message);
+      });
   };
+  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -181,7 +204,7 @@ const AppointmentsPage = () => {
                     Edit
                   </button>
                   <button 
-                    onClick={() => handleDelete(appointment.id)} 
+                    onClick={() => confirmDelete(appointment.id)} 
                     disabled={appointment?.userId.toString() !== id}
                   >
                     Delete
@@ -208,46 +231,60 @@ const AppointmentsPage = () => {
         <button type="submit">Book Appointment</button>
       </form>
 
-      {/* פופאפ תצוגה/עריכה */}
       {showPopup && selectedAppointment && (
-        <div className="popup">
-          <div className="popup-content">
-            {viewMode ? (
-              <>
-                <h2>Appointment Details</h2>
-                <p><strong>Client Name:</strong> {selectedAppointment.fullName}</p>
-                <p><strong>Appointment Time:</strong> {`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
-                <p><strong>Request Created At:</strong> {selectedAppointment.createdAt}</p>
-                <button onClick={() => setShowPopup(false)}>Close</button>
-              </>
-            ) : (
-              <>
-                <h2>Edit Appointment</h2>
-                <p>Client Name: {selectedAppointment.fullName}</p>
-                <div>
-                  <label>
-                    Appointment Time (Current):
-                    <p>{`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
-                  </label>
-                </div>
-                <div>
-                  <label>
-                    New Appointment Time:
-                    <input
-                      type="datetime-local"
-                      name="updateAppointmentTime"
-                      value={updatedAppointment.updateAppointmentTime}
-                      onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, updateAppointmentTime: e.target.value })}
-                    />
-                  </label>
-                </div>
-                <button onClick={handleEdit}>Save Changes</button>
-                <button onClick={() => setShowPopup(false)}>Close</button>
-              </>
-            )}
+  <div className="popup">
+    <div className="popup-content">
+      {viewMode ? (
+        <>
+          <h2>Appointment Details</h2>
+          <p><strong>Client Name:</strong> {selectedAppointment.fullName}</p>
+          <p><strong>Appointment Time:</strong> {`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
+          <p><strong>Request Created At:</strong> {selectedAppointment.createdAt}</p>
+          <button onClick={() => setShowPopup(false)}>Close</button>
+        </>
+      ) : (
+        <>
+          <h2>Edit Appointment</h2>
+          <p>Client Name: {selectedAppointment.fullName}</p>
+          <div>
+            <label>
+              Appointment Time (Current):
+              <p>{`${selectedAppointment.appointmentDate} ${selectedAppointment.appointmentTime}`}</p>
+            </label>
           </div>
-        </div>
+          <div>
+            <label>
+              New Appointment Time:
+              <input
+                type="datetime-local"
+                name="updateAppointmentTime"
+                value={updatedAppointment.updateAppointmentTime}
+                onChange={(e) => setUpdatedAppointment({ ...updatedAppointment, updateAppointmentTime: e.target.value })}
+              />
+            </label>
+          </div>
+          <button onClick={handleEdit}>Save Changes</button>
+          <button onClick={() => setShowPopup(false)}>Close</button>
+        </>
       )}
+    </div>
+  </div>
+)}
+
+
+{/* ✅ עכשיו פופאפ המחיקה נפרד מפופאפ העריכה */}
+{showDeletePopup && appointmentToDelete && (
+  <div className="popup">
+    <div className="popup-content">
+      <h2>Confirm Deletion</h2>
+      <p>Are you sure you want to delete the appointment for <strong>{appointmentToDelete.fullName}</strong> on <strong>{appointmentToDelete.appointmentDate} at {appointmentToDelete.appointmentTime}</strong>?</p>
+      <button onClick={handleDeleteConfirmed} style={{ backgroundColor: 'red', color: 'white' }}>Confirm Delete</button>
+      <button onClick={handleCancelDelete}>Cancel</button>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 };

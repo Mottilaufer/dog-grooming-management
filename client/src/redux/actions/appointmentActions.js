@@ -52,13 +52,18 @@ export const bookAppointment = (appointmentData, token) => async (dispatch) => {
       type: 'BOOK_APPOINTMENT_SUCCESS',
       payload: response.data,
     });
+
+    return response.data; 
   } catch (error) {
     dispatch({
       type: 'BOOK_APPOINTMENT_FAILURE',
       payload: error.message,
     });
+
+    throw error; 
   }
 };
+
 
 export const updateAppointment = (appointmentData, token) => async (dispatch) => {
   try {
