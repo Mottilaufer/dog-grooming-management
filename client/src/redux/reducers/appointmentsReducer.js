@@ -1,4 +1,3 @@
-// src/redux/reducers/appointmentsReducer.js
 const initialState = {
     appointments: [],
     loading: false,

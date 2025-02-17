@@ -39,7 +39,7 @@ namespace DogGrooming.DAL.Repositories
             };
         }
 
-        public async Task<AppointmentResult> UpdateAppointmentAsync(int userId, DateTime appointmentTime, string rowVersion, DateTime updateAppointmentTime)
+        public async Task<AppointmentResult> UpdateAppointmentAsync(int userId, string rowVersion, DateTime updateAppointmentTime,int id)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace DogGrooming.DAL.Repositories
                 using var connection = new SqlConnection(_connectionString);
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", userId);
-                parameters.Add("AppointmentTime", appointmentTime);
+                parameters.Add("Id", id);
                 parameters.Add("UpdateAppointmentTime", updateAppointmentTime); 
                 parameters.Add("RowVer", rowVersion);
                 parameters.Add("Status", dbType: DbType.Int32, direction: ParameterDirection.Output);

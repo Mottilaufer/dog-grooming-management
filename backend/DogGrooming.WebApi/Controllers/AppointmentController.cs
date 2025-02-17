@@ -27,7 +27,7 @@ namespace DogGrooming.WebApi.Controllers
         [HttpPut("update-appointment")]
         public async Task<IActionResult> UpdateAppointment([FromBody] Appointment appointment)
         {
-            var result = await _appointmentManager.UpdateAppointmentAsync(appointment.UserId, appointment.AppointmentTime, appointment.RowVer , appointment.UpdateAppointmentTime);
+            var result = await _appointmentManager.UpdateAppointmentAsync(appointment.UserId, appointment.RowVer , appointment.UpdateAppointmentTime, appointment.id);
             return Ok(result);
         }
 

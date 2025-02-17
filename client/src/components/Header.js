@@ -11,7 +11,6 @@ const Header = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    debugger
     navigate('/homepage');
   };
 

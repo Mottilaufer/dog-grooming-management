@@ -1,6 +1,5 @@
 .appointments-page {
     padding: 20px;
-    background-color: #f4f4f9;
     font-family: 'Arial', sans-serif;
   
     h2 {
@@ -58,10 +57,17 @@
       transition: background-color 0.3s ease;
       margin: 5px;
     }
-  
-    button:hover {
+    
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    
+
+    button:not(:disabled):hover {
       background-color: #45a049;
     }
+    
   
     .popup {
       position: fixed;

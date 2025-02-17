@@ -59,3 +59,21 @@ export const bookAppointment = (appointmentData, token) => async (dispatch) => {
   }
 };
 
+export const updateAppointment = (appointmentData, token) => async (dispatch) => {
+  try {
+    const response = await axios.put('/appointments/update-appointment', appointmentData, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    dispatch({
+      type: 'BOOK_APPOINTMENT_SUCCESS',
+      payload: response.data,
+    });
+  } catch (error) {
+    dispatch({
+      type: 'BOOK_APPOINTMENT_FAILURE',
+      payload: error.message,
+    });
+  }
+};
+

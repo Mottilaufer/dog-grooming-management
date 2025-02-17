@@ -18,20 +18,20 @@ namespace DogGrooming.WebApi.Managers
 
 
 
-        public async Task<AppointmentResponse> UpdateAppointmentAsync(int userId, DateTime appointmentTime, string rowVer, DateTime updateAppointmentTime)
+        public async Task<AppointmentResponse> UpdateAppointmentAsync(int userId,  string rowVer, DateTime updateAppointmentTime, int id)
         {
             AppointmentResponse appointmentResponse = new();
 
             try
             {
-                Log.Information($"Attempting to update appointment for user {userId} at {appointmentTime}");
-                var result = await _appointmentRepository.UpdateAppointmentAsync(userId, appointmentTime, rowVer, updateAppointmentTime);
+                Log.Information($"Attempting to update appointment for user {userId} - updated appointment {updateAppointmentTime}");
+                var result = await _appointmentRepository.UpdateAppointmentAsync(userId, rowVer, updateAppointmentTime,id);
                 appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
                 appointmentResponse.Data = new List<Appointment>();  
             }
             catch (Exception ex)
             {
-                Log.Error($"Error updating appointment for user {userId} at {appointmentTime}: {ex.Message}");
+                Log.Error($"Error updating appointment for user {userId} {userId} - updated appointment {updateAppointmentTime}: {ex.Message}");
                 appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "Error updating appointment." };
                 appointmentResponse.Data = new List<Appointment>();
             }
