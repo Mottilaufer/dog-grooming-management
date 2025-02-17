@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../redux/actions/userActions';
 import { useNavigate } from 'react-router-dom';
-import './LoginPage.scss'; // Import the styles
+import './LoginPage.scss';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated); // ⬅️ בדיקה אם המשתמש מחובר
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+
+  // ✅ מניעת גישה ל-LoginPage אם המשתמש מחובר
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/appointments'); // ⬅️ אם מחובר, מעבר אוטומטי
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setCredentials({
@@ -22,7 +30,7 @@ const LoginPage = () => {
     try {
       const response = await dispatch(loginUser(credentials));
       if (response.success) {
-        navigate('/appointments');
+        navigate('/appointments'); // ⬅️ אם ההתחברות הצליחה, מעבר לעמוד הפגישות
       } else {
         setError('Login failed');
       }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { bookAppointment } from '../redux/actions/appointmentActions'; // כאן תוכל להוסיף את הפעולה המתאימה ל-Redux
+import { bookAppointment } from '../redux/actions/appointmentActions'; 
 import './BookAppointmentPage.scss';
 
 const BookAppointmentPage = () => {
@@ -19,7 +19,6 @@ const BookAppointmentPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // שליחה של בקשת תור חדש ל-Redux
     dispatch(bookAppointment(appointmentDetails));
   };
 

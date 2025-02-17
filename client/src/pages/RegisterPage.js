@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../redux/actions/userActions'; 
 import { useNavigate } from 'react-router-dom'; 
 
 const RegisterPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();  
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated); // ⬅️ בדיקה אם המשתמש מחובר
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [message, setMessage] = useState('');
 
-  const navigate = useNavigate();  
-
+  // ✅ מניעת גישה לעמוד ההרשמה אם המשתמש כבר מחובר
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/appointments'); // ⬅️ אם מחובר, נשלח אותו לדף הפגישות
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +29,6 @@ const RegisterPage = () => {
 
     if (response.success) {
       navigate('/login');  
-
       alert('User registered successfully!');
     } else {
       setMessage(response.message || 'Registration failed');
