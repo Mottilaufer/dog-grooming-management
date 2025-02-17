@@ -1,53 +1,92 @@
-/* Header Styling */
 .header {
-    background-color: #4CAF50; /* צבע ירוק דומיננטי */
-    padding: 20px 40px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #4CAF50; 
+  padding: 20px 40px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-100%);
+  animation: slideDown 1s ease-out forwards;
+
   
-    h1 {
-      font-size: 28px;
-      font-weight: 600;
-    }
-  
-    button {
-      background-color: white;
-      color: #4CAF50;
-      border: 2px solid #4CAF50;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-  
-      &:hover {
-        background-color: #45a049;
-        color: white;
-      }
-    }
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
   }
-  
-  /* Footer Styling */
-  .footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
+
+  button {
+    background-color: white;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
     padding: 10px 20px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    font-size: 14px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #45a049;
+      color: white;
+    }
   }
-  
-  .footer a {
+
+
+  @media (max-width: 768px) {
+    padding: 15px 20px;
+    flex-direction: column;
+    text-align: center;
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
+}
+
+@keyframes slideDown {
+  0% {
+      transform: translateY(-100%);
+  }
+  100% {
+      transform: translateY(0);
+  }
+}
+
+.footer {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px 20px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  font-size: 14px;
+
+  a {
     color: #4CAF50;
     text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
-  
-  .footer a:hover {
-    text-decoration: underline;
+
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 8px 10px;
   }
-  
+}
+
+
+@media (max-width: 768px) {
+.footer {
+  position: relative;
+}
+}

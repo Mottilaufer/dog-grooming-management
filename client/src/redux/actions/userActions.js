@@ -51,7 +51,7 @@ export const registerUser = (userData) => async (dispatch) => {
     if (response?.data?.successResponse?.success) {
       return { success: true };
     } else {
-      return { success: false, message: response.data.message };
+      return { success: false, message: response.data.successResponse.message };
     }
   } catch (error) {
     return { success: false, message: error.message };

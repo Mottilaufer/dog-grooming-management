@@ -1,3 +1,17 @@
+body {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+      opacity: 0;
+  }
+  100% {
+      opacity: 1;
+  }
+}
+
 
 .app-container {
     text-align: center;
@@ -30,11 +44,11 @@
   
   .app-content {
     flex: 1;
-    padding: 20px;
+    // padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
     background-color: #fff;
   }
   
-  /* כאן אפשר להוסיף עוד סגנונות לכל חלק של האפליקציה */
+
   

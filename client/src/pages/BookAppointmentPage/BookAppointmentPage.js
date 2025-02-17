@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { bookAppointment } from '../redux/actions/appointmentActions'; 
+import { bookAppointment } from '../../redux/actions/appointmentActions'; 
 import './BookAppointmentPage.scss';
 
 const BookAppointmentPage = () => {

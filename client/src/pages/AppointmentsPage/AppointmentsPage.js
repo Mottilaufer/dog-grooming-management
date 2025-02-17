@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAppointments, deleteAppointment, updateAppointment, bookAppointment } from '../redux/actions/appointmentActions';
+import { fetchAppointments, deleteAppointment, updateAppointment, bookAppointment } from '../../redux/actions/appointmentActions';
 import { useNavigate } from 'react-router-dom';
 import './AppointmentsPage.scss';
 
