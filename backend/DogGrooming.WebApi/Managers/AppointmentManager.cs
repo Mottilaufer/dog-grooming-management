@@ -27,6 +27,14 @@ namespace DogGrooming.WebApi.Managers
 
             try
             {
+                bool isAvailable = await IsAppointmentAvailable(updateAppointmentTime);
+
+                if (!isAvailable)
+                {
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "The appointment is not available." };
+                    appointmentResponse.Data = new List<Appointment>();
+                    return appointmentResponse;
+                }
                 Log.Information($"Attempting to update appointment for user {userId} - updated appointment {updateAppointmentTime}");
                 var result = await _appointmentRepository.UpdateAppointmentAsync(userId, rowVer, updateAppointmentTime,id);
                 appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
@@ -139,7 +147,15 @@ namespace DogGrooming.WebApi.Managers
             {
                 Log.Information($"Attempting to add appointment for user {userId} at {appointmentTime}");
 
-      
+                bool isAvailable = await IsAppointmentAvailable(appointmentTime);
+
+                if (!isAvailable)
+                {
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "The appointment is not available." };
+                    appointmentResponse.Data = new List<Appointment>();
+                    return appointmentResponse;
+                }
+               
                 var existingAppointment = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
                 if (existingAppointment.Any(a => a.AppointmentTime == appointmentTime))
                 {
@@ -176,5 +192,23 @@ namespace DogGrooming.WebApi.Managers
             var availableSlotsResponse = await _appointmentRepository.GetAvailableAppointmentSlots();
             return availableSlotsResponse;
         }
+        private async Task<bool> IsAppointmentAvailable(DateTime appointmentTime)
+        {
+            var availableSlots = await GetAvailableSlotsAsync();
+            string appointmentDate = appointmentTime.ToString("yyyy-MM-dd");
+            string appointmentHour = appointmentTime.ToString("HH:mm");
+
+            var availableDay = availableSlots.FirstOrDefault(d => d.Date == appointmentDate);
+
+            if (availableDay == null)
+            {
+                return false;
+            }
+
+            var availableSlot = availableDay.Slots.FirstOrDefault(s => s.Time == appointmentHour && !s.IsBooked);
+
+            return availableSlot != null;
+        }
+
     }
 }
