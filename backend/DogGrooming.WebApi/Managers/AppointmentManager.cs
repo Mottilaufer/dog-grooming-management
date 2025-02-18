@@ -12,11 +12,12 @@ namespace DogGrooming.WebApi.Managers
     {
         private readonly IUserRepository _userRepository;
         private readonly IAppointmentRepository _appointmentRepository;
-
-        public AppointmentManager(IUserRepository userRepository, IAppointmentRepository appointmentRepository)
+        private readonly IUserContextService _userContextService;
+        public AppointmentManager(IUserRepository userRepository, IAppointmentRepository appointmentRepository, IUserContextService userContextService)
         {
             _userRepository = userRepository;
             _appointmentRepository = appointmentRepository;
+            _userContextService = userContextService;
         }
 
 
@@ -27,6 +28,13 @@ namespace DogGrooming.WebApi.Managers
 
             try
             {
+                bool isUserValid = IsUserValid(userId.ToString());
+                if (!isUserValid)
+                {
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "The userId in not valid." };
+                    appointmentResponse.Data = new List<Appointment>();
+                    return appointmentResponse;
+                }
                 bool isAvailable = await IsAppointmentAvailable(updateAppointmentTime);
 
                 if (!isAvailable)
@@ -57,6 +65,13 @@ namespace DogGrooming.WebApi.Managers
 
             try
             {
+                bool isUserValid = IsUserValid(userId.ToString());
+                if (!isUserValid)
+                {
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "The userId in not valid." };
+                    appointmentResponse.Data = new List<Appointment>();
+                    return appointmentResponse;
+                }
                 Log.Information($"Attempting to delete appointment for user {userId} at appointmentID {id}");
                 var result = await _appointmentRepository.DeleteAppointmentAsync(userId,id);
                 appointmentResponse.successResponse = new SuccessResponse { Success = result.Status == 1, Message = result.Message };
@@ -146,7 +161,14 @@ namespace DogGrooming.WebApi.Managers
             try
             {
                 Log.Information($"Attempting to add appointment for user {userId} at {appointmentTime}");
-
+                
+                bool isUserValid = IsUserValid(userId.ToString());
+                if (!isUserValid)
+                {
+                    appointmentResponse.successResponse = new SuccessResponse { Success = false, Message = "The userId in not valid." };
+                    appointmentResponse.Data = new List<Appointment>();
+                    return appointmentResponse;
+                }
                 bool isAvailable = await IsAppointmentAvailable(appointmentTime);
 
                 if (!isAvailable)
@@ -208,6 +230,11 @@ namespace DogGrooming.WebApi.Managers
             var availableSlot = availableDay.Slots.FirstOrDefault(s => s.Time == appointmentHour && !s.IsBooked);
 
             return availableSlot != null;
+        }
+        private bool IsUserValid(string id)
+        {
+            var userId = _userContextService.GetUserId();
+            return userId == id;
         }
 
     }
