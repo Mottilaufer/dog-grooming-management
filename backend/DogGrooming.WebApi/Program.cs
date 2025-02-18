@@ -25,6 +25,7 @@ var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("Jwt").Bind(jwtSettings);
 var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
 
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<DatabaseContext>();
@@ -34,6 +35,7 @@ builder.Services.AddSingleton<IAuthManager, AuthManager>();
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IAppointmentManager, AppointmentManager>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 
 builder.Services.AddCors(options =>
