@@ -29,6 +29,12 @@ namespace DogGrooming.WebApi.Managers
             string message = string.Empty;
             try
             {
+                string validationMessage = ValidateUserCredentials(user);
+                if (!string.IsNullOrEmpty(validationMessage))
+                {
+                    userRegistrationResult.successResponse.Message = validationMessage;
+                    return userRegistrationResult;
+                }
                 Log.Information($"Attempting to register user: {user.Username}");
 
             
@@ -65,9 +71,10 @@ namespace DogGrooming.WebApi.Managers
             loginResponse.successResponse = new();
             try
             {
-                if (string.IsNullOrWhiteSpace(user?.Username) || string.IsNullOrWhiteSpace(user?.Password))
+                string validationMessage = ValidateUserCredentials(user);
+                if (!string.IsNullOrEmpty(validationMessage))
                 {
-                    loginResponse.successResponse.Message = "Username and password are required.";
+                    loginResponse.successResponse.Message = validationMessage;
                     return loginResponse;
                 }
                 Log.Information($"Attempting to authenticate user: {user.Username}");
@@ -106,6 +113,27 @@ namespace DogGrooming.WebApi.Managers
 
             }
             return loginResponse;
+        }
+
+
+        private string ValidateUserCredentials(User user)
+        {
+            if (string.IsNullOrWhiteSpace(user?.Username) || string.IsNullOrWhiteSpace(user?.Password))
+            {
+                return "Username and password are required.";
+            }
+
+            if (user.Username.Length < 3)
+            {
+                return "Username must be at least 3 characters long.";
+            }
+
+            if (user.Password.Length < 6)
+            {
+                return "Password must be at least 6 characters long.";
+            }
+
+            return string.Empty;
         }
 
 
